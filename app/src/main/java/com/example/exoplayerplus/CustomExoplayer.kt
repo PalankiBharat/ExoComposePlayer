@@ -157,6 +157,8 @@ fun CenterPlayerControls(
     onSeekBarValueChange: (Float) -> Unit = {},
     onBrightnessChange: (value: Float) -> Unit = {},
     brightnessLevel: Float,
+    onVolumeChange: (value: Float) -> Unit = {},
+    volumeLevel: Float,
     isInFullPlayerMode: Boolean = true,
 ) {
     var isPlayingValue by remember {
@@ -164,7 +166,7 @@ fun CenterPlayerControls(
     }
 
     var seekbarPosition by remember {
-        mutableStateOf(0f)
+        mutableStateOf(seekbarPosition)
     }
 
     LaunchedEffect(key1 = currentDuration) {
