@@ -25,11 +25,11 @@ import androidx.compose.ui.unit.dp
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun HSlider(@FloatRange(from = 0.0, to = 1.0) defaultValue: Float, onValueChange: (Float) -> Unit,sliderStyle: SliderStyle = SliderStyle.DefaultSliderStyle) {
+fun HSlider(modifier: Modifier = Modifier ,@FloatRange(from = 0.0, to = 1.0) defaultValue: Float, onValueChange: (Float) -> Unit,sliderStyle: SliderStyle = SliderStyle.DefaultSliderStyle) {
     Column {
         var sliderPosition by remember { mutableStateOf(defaultValue) }
         Slider(
-            modifier = Modifier
+            modifier = modifier
                 .graphicsLayer {
                     rotationZ = 270f
                     transformOrigin = TransformOrigin(0f, 0f)
@@ -77,7 +77,7 @@ fun HSlider(@FloatRange(from = 0.0, to = 1.0) defaultValue: Float, onValueChange
 @Preview
 @Composable
 fun HSliderPrev() {
-    HSlider(0.4f, {})
+    HSlider(modifier = Modifier,0.4f, {})
 }
 
 data class SliderStyle(
