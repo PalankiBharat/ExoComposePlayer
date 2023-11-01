@@ -130,15 +130,19 @@ fun CenterPlayerControls(
         ) {
 
             //Brightness Slider
-            Column {
-                IconButton(onClick = { }) {
-                    Image(
-                        painter = painterResource(id = R.drawable.ic_brightness_medium),
-                        contentDescription = "Brightness Level"
-                    )
+            if (isInFullPlayerMode)
+            {
+                Column {
+                    IconButton(onClick = { }) {
+                        Image(
+                            painter = painterResource(id = R.drawable.ic_brightness_medium),
+                            contentDescription = "Brightness Level"
+                        )
+                    }
+                    HSlider(defaultValue = 0.5f, onValueChange = {})
                 }
-                HSlider(defaultValue = 0.5f, onValueChange = {})
             }
+
 
             //replay button
             IconButton(modifier = Modifier.size(40.dp), onClick = {
@@ -179,14 +183,16 @@ fun CenterPlayerControls(
             }
 
             //Volume Slider
-            Column {
-                IconButton(onClick = { }) {
-                    Image(
-                        painter = painterResource(id = R.drawable.ic_volume_high),
-                        contentDescription = "Volume Level"
-                    )
+            if (isInFullPlayerMode) {
+                Column {
+                    IconButton(onClick = { }) {
+                        Image(
+                            painter = painterResource(id = R.drawable.ic_volume_high),
+                            contentDescription = "Volume Level"
+                        )
+                    }
+                    HSlider(defaultValue = 0.5f, onValueChange = {})
                 }
-                HSlider(defaultValue = 0.5f, onValueChange = {})
             }
         }
     }
