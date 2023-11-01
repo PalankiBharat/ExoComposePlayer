@@ -38,28 +38,28 @@ import androidx.media3.ui.PlayerView
 
 
 @Composable
-fun CustomExoplayer(modifier: Modifier = Modifier) {
-
+fun CustomExoplayer(
+    modifier: Modifier = Modifier,
+    mediaUrl: String = "",
+    exoplayerBuilder: ExoPlayer.Builder? = null
+) {
     val context = LocalContext.current
-
     var areControlsVisible by remember {
         mutableStateOf(false)
     }
-
     val exoPlayer = remember {
-        ExoPlayer.Builder(context).build().apply {
-            setMediaItem(
-                MediaItem.fromUri(
-                    "https://www.learningcontainer.com/wp-content/uploads/2020/05/sample-mp4-file.mp4"
+        exoplayerBuilder?.build()
+            ?: ExoPlayer.Builder(context).build().apply {
+                setMediaItem(
+                    MediaItem.fromUri(mediaUrl)
                 )
-            )
-            prepare()
+                prepare()
+                playWhenReady = true
+            }
 
-            playWhenReady = true
-        }
     }
 
-    Box(modifier = modifier.aspectRatio(16 / 9f)) {
+    Box(modifier = modifier) {
         DisposableEffect(key1 = Unit) { onDispose { exoPlayer.release() } }
 
         AndroidView(
@@ -70,11 +70,10 @@ fun CustomExoplayer(modifier: Modifier = Modifier) {
                 PlayerView(context).apply {
                     player = exoPlayer
                     useController = false
-                    layoutParams =
-                        FrameLayout.LayoutParams(
-                            ViewGroup.LayoutParams.MATCH_PARENT,
-                            ViewGroup.LayoutParams.MATCH_PARENT
-                        )
+                    layoutParams = FrameLayout.LayoutParams(
+                        ViewGroup.LayoutParams.MATCH_PARENT,
+                        ViewGroup.LayoutParams.MATCH_PARENT
+                    )
 
                 }
             }
@@ -84,13 +83,19 @@ fun CustomExoplayer(modifier: Modifier = Modifier) {
                 visible = areControlsVisible,
                 enter = fadeIn(), exit = fadeOut()
             ) {
-                CenterPlayerControls(onReplayClick = { /*TODO*/ }, onPlayPauseToggle = {
+                CenterPlayerControls(
+                    onReplayClick = { exoPlayer.seekTo(exoPlayer.currentPosition - 15000) },
+                    onPlayPauseToggle = {
 
-                }, onForwardClick = {
+                    },
+                    onForwardClick = {
+                        exoPlayer.seekTo(exoPlayer.currentPosition + 15000)
+                    },
+                    onBrightnessChange = {
 
-                }, onBrightnessChange = {
-
-                }, brightnessLevel = 50f)
+                    },
+                    brightnessLevel = 50f
+                )
             }
         }
 
@@ -107,6 +112,7 @@ fun CenterPlayerControls(
     onForwardClick: () -> Unit = {},
     onBrightnessChange: (value: Float) -> Unit = {},
     brightnessLevel: Float,
+    isInFullPlayerMode: Boolean = true
 ) {
     val isPlayingValue by remember {
         mutableStateOf(false)
@@ -119,7 +125,8 @@ fun CenterPlayerControls(
             modifier = Modifier
                 .align(Alignment.Center)
                 .fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceEvenly
+            horizontalArrangement = Arrangement.SpaceEvenly,
+            verticalAlignment = Alignment.CenterVertically
         ) {
 
             //Brightness Slider
@@ -130,7 +137,7 @@ fun CenterPlayerControls(
                         contentDescription = "Brightness Level"
                     )
                 }
-
+                HSlider(defaultValue = 0.5f, onValueChange = {})
             }
 
             //replay button
@@ -170,12 +177,29 @@ fun CenterPlayerControls(
                     contentDescription = "Forward 10 seconds"
                 )
             }
+
+            //Volume Slider
+            Column {
+                IconButton(onClick = { }) {
+                    Image(
+                        painter = painterResource(id = R.drawable.ic_volume_high),
+                        contentDescription = "Volume Level"
+                    )
+                }
+                HSlider(defaultValue = 0.5f, onValueChange = {})
+            }
         }
     }
+}
+
+@Preview(heightDp = 360, widthDp = 800)
+@Composable
+fun PlayerControlsFillPlayerPreview() {
+    CenterPlayerControls(brightnessLevel = 50f, isInFullPlayerMode = true)
 }
 
 @Preview
 @Composable
 fun PlayerControlsPreview() {
-    CenterPlayerControls(brightnessLevel = 50f)
+    CenterPlayerControls(brightnessLevel = 50f, isInFullPlayerMode = false)
 }
