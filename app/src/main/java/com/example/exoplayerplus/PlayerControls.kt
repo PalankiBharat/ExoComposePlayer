@@ -75,9 +75,6 @@ fun CenterPlayerControls(
         mutableFloatStateOf(seekbarPosition)
     }
 
-
-
-
     LaunchedEffect(key1 = currentDuration) {
         videoPlaybackPosition = (currentDuration.toFloat() / totalDuration.toFloat())
     }
