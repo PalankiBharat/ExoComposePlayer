@@ -134,6 +134,7 @@ fun CustomExoplayer(
                     onBrightnessChange = {
                     },
                     brightnessLevel = 50f,
+                    volumeLevel = 50f,
                     onSeekBarValueChange = { percent ->
                         exoPlayer.seekTo((exoPlayer.duration * percent).toLong())
                     },
@@ -247,7 +248,7 @@ fun CenterPlayerControls(
                             contentDescription = "Volume Level",
                         )
                     }
-                    HSlider(Modifier.fillMaxHeight(0.7f), defaultValue = 0.5f, onValueChange = {})
+                    HSlider(Modifier.fillMaxHeight(0.7f), defaultValue =volumeLevel, onValueChange = {})
                 }
             }
         }
@@ -277,7 +278,7 @@ fun CenterPlayerControls(
 @Preview(heightDp = 360, widthDp = 800)
 @Composable
 fun PlayerControlsFillPlayerPreview() {
-    CenterPlayerControls(brightnessLevel = 50f, isInFullPlayerMode = true, currentDuration = 100000, totalDuration = 500000)
+    CenterPlayerControls(brightnessLevel = 50f, volumeLevel = 0f, isInFullPlayerMode = true, currentDuration = 100000, totalDuration = 500000)
 }
 
 @Preview
@@ -289,6 +290,7 @@ fun PlayerControlsPreview() {
                 .fillMaxWidth()
                 .aspectRatio(16f / 9f),
             brightnessLevel = 50f,
+            volumeLevel = 0f,
             isInFullPlayerMode = false,
             currentDuration = 100000,
             totalDuration = 500000,
