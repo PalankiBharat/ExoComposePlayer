@@ -1,8 +1,13 @@
 package com.example.exoplayerplus
 
+import android.app.Activity
+import android.content.Context
+import android.provider.Settings
 import android.util.Log
 import android.view.ViewGroup
+import android.view.WindowManager
 import android.widget.FrameLayout
+import androidx.annotation.FloatRange
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
@@ -27,6 +32,7 @@ import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -49,12 +55,14 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOn
+import java.security.AccessController.getContext
 import java.util.concurrent.TimeUnit
 import kotlin.math.abs
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.seconds
 import kotlin.time.DurationUnit
 import kotlin.time.toDuration
+
 
 @Composable
 fun CustomExoplayer(
@@ -76,6 +84,11 @@ fun CustomExoplayer(
     var totalDuration by remember {
         mutableLongStateOf(0L)
     }
+
+    var brightnessLevel by remember {
+        mutableFloatStateOf(context.getCurrentBrightness())
+    }
+
     val exoPlayer = remember {
         exoplayerBuilder?.build()
             ?: ExoPlayer.Builder(context).build().apply {
@@ -132,8 +145,9 @@ fun CustomExoplayer(
                         exoPlayer.seekTo(exoPlayer.currentPosition + 15000)
                     },
                     onBrightnessChange = {
+                        brightnessLevel = it
                     },
-                    brightnessLevel = 50f,
+                    brightnessLevel = brightnessLevel,
                     volumeLevel = 50f,
                     onSeekBarValueChange = { percent ->
                         exoPlayer.seekTo((exoPlayer.duration * percent).toLong())
@@ -162,6 +176,8 @@ fun CenterPlayerControls(
     volumeLevel: Float,
     isInFullPlayerMode: Boolean = true,
 ) {
+    val context = LocalContext.current
+
     var isPlayingValue by remember {
         mutableStateOf(false)
     }
@@ -170,9 +186,11 @@ fun CenterPlayerControls(
         mutableStateOf(seekbarPosition)
     }
 
+
+
+
     LaunchedEffect(key1 = currentDuration) {
         seekbarPosition = (currentDuration.toFloat() / totalDuration.toFloat())
-        Log.d("TAG", "CenterPlayerControls: a $currentDuration  $totalDuration" + seekbarPosition)
     }
 
     // black overlay across the video player
@@ -194,7 +212,13 @@ fun CenterPlayerControls(
                             contentDescription = "Brightness Level",
                         )
                     }
-                    HSlider(modifier = Modifier.fillMaxHeight(0.7f), defaultValue = 0.5f, onValueChange = {})
+                    HSlider(
+                        modifier = Modifier.fillMaxHeight(0.7f),
+                        defaultValue = brightnessLevel,
+                        onValueChange = {
+                            context.changeBrightnessLevel(percent = it)
+                            onBrightnessChange(it)
+                        })
                 }
             }
 
@@ -248,7 +272,10 @@ fun CenterPlayerControls(
                             contentDescription = "Volume Level",
                         )
                     }
-                    HSlider(Modifier.fillMaxHeight(0.7f), defaultValue =volumeLevel, onValueChange = {})
+                    HSlider(
+                        Modifier.fillMaxHeight(0.7f),
+                        defaultValue = volumeLevel,
+                        onValueChange = {})
                 }
             }
         }
@@ -259,7 +286,12 @@ fun CenterPlayerControls(
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.SpaceAround,
         ) {
-            Text(modifier = Modifier.padding(horizontal = 16.dp), text = currentDuration.formatMinSec(), color = Color.White, fontSize = 12.sp)
+            Text(
+                modifier = Modifier.padding(horizontal = 16.dp),
+                text = currentDuration.formatMinSec(),
+                color = Color.White,
+                fontSize = 12.sp
+            )
             Slider(
                 modifier = Modifier
                     .weight(1f)
@@ -270,7 +302,12 @@ fun CenterPlayerControls(
                     onSeekBarValueChange(it)
                 },
             )
-            Text(modifier = Modifier.padding(horizontal = 16.dp), text = totalDuration.formatMinSec(), color = Color.White, fontSize = 12.sp)
+            Text(
+                modifier = Modifier.padding(horizontal = 16.dp),
+                text = totalDuration.formatMinSec(),
+                color = Color.White,
+                fontSize = 12.sp
+            )
         }
     }
 }
@@ -278,7 +315,13 @@ fun CenterPlayerControls(
 @Preview(heightDp = 360, widthDp = 800)
 @Composable
 fun PlayerControlsFillPlayerPreview() {
-    CenterPlayerControls(brightnessLevel = 50f, volumeLevel = 0f, isInFullPlayerMode = true, currentDuration = 100000, totalDuration = 500000)
+    CenterPlayerControls(
+        brightnessLevel = 50f,
+        volumeLevel = 0f,
+        isInFullPlayerMode = true,
+        currentDuration = 100000,
+        totalDuration = 500000
+    )
 }
 
 @Preview
@@ -325,9 +368,29 @@ fun Long.formatMinSec(): String {
             "%02d:%02d",
             TimeUnit.MILLISECONDS.toMinutes(this),
             TimeUnit.MILLISECONDS.toSeconds(this) -
-                TimeUnit.MINUTES.toSeconds(
-                    TimeUnit.MILLISECONDS.toMinutes(this),
-                ),
+                    TimeUnit.MINUTES.toSeconds(
+                        TimeUnit.MILLISECONDS.toMinutes(this),
+                    ),
         )
     }
+}
+
+fun Context.changeBrightnessLevel(@FloatRange(0.0, 1.0) percent: Float) {
+    val activity = this as Activity
+    val layout: WindowManager.LayoutParams? = activity.window?.attributes
+    layout?.screenBrightness = percent
+    activity.window?.attributes = layout
+}
+
+fun Context.getCurrentBrightness(): Float {
+    var curBrightness =
+        Settings.System.getFloat(this.contentResolver, Settings.System.SCREEN_BRIGHTNESS)
+    Log.d("TAG", "getCurrentBrightness: $curBrightness")
+    curBrightness /= 100f
+    if (curBrightness > 1) {
+        curBrightness = 1f
+    } else if (curBrightness < 0) {
+        curBrightness = 0f
+    }
+    return curBrightness
 }
