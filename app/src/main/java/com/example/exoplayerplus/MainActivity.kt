@@ -20,7 +20,8 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
 
         val pip = PiPActivity(this)
-        lifecycle.addObserver(pip)
+        pip.initPip()
+
         setContent {
             ExoPlayerPlusTheme {
                 // A surface container using the 'background' color from the theme

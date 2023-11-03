@@ -2,12 +2,14 @@ package com.example.exoplayerplus
 
 import android.app.Activity
 import android.content.Context
+import android.content.pm.ActivityInfo
 import android.provider.Settings
 import android.util.Log
 import android.view.WindowManager
 import androidx.annotation.FloatRange
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -63,7 +65,7 @@ fun CenterPlayerControls(
     brightnessLevel: Float,
     onVolumeChange: (value: Float) -> Unit = {},
     volumeLevel: Float,
-    isInFullPlayerMode: Boolean = true,
+    playerMode: PlayerModes,
 ) {
     val context = LocalContext.current
 
@@ -78,6 +80,8 @@ fun CenterPlayerControls(
     LaunchedEffect(key1 = currentDuration) {
         videoPlaybackPosition = (currentDuration.toFloat() / totalDuration.toFloat())
     }
+
+    val isInFullPlayerMode = (playerMode == PlayerModes.FULL_PLAYER)
 
     // black overlay across the video player
     Box(modifier = modifier.background(Color.Black.copy(alpha = 0.6f))) {
@@ -195,6 +199,36 @@ fun CenterPlayerControls(
                 fontSize = 12.sp
             )
         }
+
+        if (playerMode == PlayerModes.MINI_PLAYER) {
+            Image(
+                modifier = Modifier
+                    .size(40.dp)
+                    .align(Alignment.BottomEnd).clickable {
+                        val activity = context as Activity
+
+                        activity.requestedOrientation =
+                            ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE
+                    },
+                contentScale = ContentScale.Crop,
+                painter = painterResource(id = R.drawable.ic_fullscreen),
+                contentDescription = "Full Screen",
+            )
+        }else{
+            Image(
+                modifier = Modifier
+                    .size(28.dp)
+                    .align(Alignment.BottomEnd)
+                    .clickable {
+                        val activity = context as Activity
+
+                        activity.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
+                    },
+                contentScale = ContentScale.Crop,
+                painter = painterResource(id = R.drawable.ic_fullscreen_exit),
+                contentDescription = "Mini Screen",
+            )
+        }
     }
 }
 
@@ -204,7 +238,7 @@ fun PlayerControlsFillPlayerPreview() {
     CenterPlayerControls(
         brightnessLevel = 50f,
         volumeLevel = 0f,
-        isInFullPlayerMode = true,
+        playerMode = PlayerModes.FULL_PLAYER,
         currentDuration = 100000,
         totalDuration = 500000
     )
@@ -220,7 +254,7 @@ fun PlayerControlsPreview() {
                 .aspectRatio(16f / 9f),
             brightnessLevel = 50f,
             volumeLevel = 0f,
-            isInFullPlayerMode = false,
+            playerMode = PlayerModes.MINI_PLAYER,
             currentDuration = 100000,
             totalDuration = 500000,
         )
