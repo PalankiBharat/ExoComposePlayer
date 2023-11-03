@@ -7,9 +7,11 @@ import android.content.Context
 import android.content.pm.PackageManager
 import android.os.Build
 import android.os.Bundle
+import android.util.Log
 import android.util.Rational
 import androidx.activity.ComponentActivity
 import androidx.activity.OnBackPressedCallback
+import androidx.lifecycle.DefaultLifecycleObserver
 import androidx.lifecycle.LifecycleCoroutineScope
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.lifecycleScope
@@ -23,8 +25,53 @@ import kotlinx.coroutines.flow.filterIsInstance
 import kotlinx.coroutines.launch
 
 
-open class PiPActivity : ComponentActivity(), ActivityLifecycleCallbacks  {
-    override fun onActivityCreated(activity: Activity, savedInstanceState: Bundle?) {
+open class PiPActivity(val activity: ComponentActivity) : DefaultLifecycleObserver {
+
+    fun initPip()
+    {
+        activity.lifecycle.addObserver(this)
+    }
+
+    override fun onCreate(owner: LifecycleOwner) {
+        super.onCreate(owner)
+        Log.d("TAG", "onCreate: OnCreate")
+        activity.apply {
+            addOnPictureInPictureModeChangedListener {
+                if (it.isInPictureInPictureMode)
+                {
+                    lifecycleScope.invokeEventBus(PipEvents.IS_IN_PIP_MODE)
+                }
+                else{
+                    lifecycleScope.invokeEventBus(PipEvents.IS_NOT_IN_PIP_MODE)
+                }
+            }
+
+            onBackPressedDispatcher.addCallback(object : OnBackPressedCallback(true) {
+                override fun handleOnBackPressed() {
+                    if (activity.doesSupportPip())
+                    {
+                        Log.d("TAG", "handleOnBackPressed: ")
+                        activity.initPip()
+                    }
+                }
+
+            })
+        }
+    }
+
+    override fun onPause(owner: LifecycleOwner) {
+        super.onPause(owner)
+        if (activity.doesSupportPip())
+        {
+            Log.d("TAG", "handleOnBackPressed: ")
+            activity.initPip()
+        }
+    }
+
+
+
+
+   /* override fun onActivityCreated(activity: Activity, savedInstanceState: Bundle?) {
         addOnPictureInPictureModeChangedListener {
             if (it.isInPictureInPictureMode)
             {
@@ -39,6 +86,7 @@ open class PiPActivity : ComponentActivity(), ActivityLifecycleCallbacks  {
             override fun handleOnBackPressed() {
                 if (activity.doesSupportPip())
                 {
+                    Log.d("TAG", "handleOnBackPressed: ")
                     activity.initPip()
                 }
             }
@@ -76,9 +124,11 @@ open class PiPActivity : ComponentActivity(), ActivityLifecycleCallbacks  {
                 EventBus.invokeEvent(PipEvents.ENABLE_PIP_MODE)
             }
         }
-    }
+    }*/
 
 }
+
+
 
 private fun Activity.checkPipMode(lifecycleOwner: LifecycleOwner) {
     lifecycleOwner.lifecycleScope.launch {

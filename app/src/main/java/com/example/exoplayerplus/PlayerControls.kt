@@ -241,7 +241,6 @@ fun Player.currentPositionFlow(
 ) = flow {
     while (true) {
         if (isPlaying) emit(currentPosition)
-        Log.d("TAG", "currentPositionFlow: " + currentPosition)
         delay(updateFrequency)
     }
 }.flowOn(Dispatchers.Main)

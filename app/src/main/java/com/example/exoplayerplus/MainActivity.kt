@@ -18,6 +18,9 @@ import com.example.exoplayerplus.ui.theme.ExoPlayerPlusTheme
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        val pip = PiPActivity(this)
+        lifecycle.addObserver(pip)
         setContent {
             ExoPlayerPlusTheme {
                 // A surface container using the 'background' color from the theme
@@ -35,10 +38,3 @@ class MainActivity : ComponentActivity() {
     }
 }
 
-class asdas:ComponentActivity()
-{
-    override fun onCreate(savedInstanceState: Bundle?, persistentState: PersistableBundle?) {
-        super.onCreate(savedInstanceState, persistentState)
-
-    }
-}

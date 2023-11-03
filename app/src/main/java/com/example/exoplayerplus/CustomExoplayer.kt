@@ -1,14 +1,24 @@
 package com.example.exoplayerplus
 
+import android.util.Log
 import android.view.ViewGroup
 import android.widget.FrameLayout
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
+import androidx.compose.foundation.Canvas
+import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.combinedClickable
+import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.size
+import androidx.compose.material3.IconButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
@@ -19,9 +29,15 @@ import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.drawWithContent
+import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.media3.common.MediaItem
 import androidx.media3.common.Player
@@ -30,17 +46,22 @@ import androidx.media3.ui.PlayerView
 import kotlinx.coroutines.delay
 
 
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun CustomExoplayer(
-    modifier: Modifier = Modifier,
+    modifier: Modifier = Modifier
+        .fillMaxWidth()
+        .aspectRatio(16f / 9f),
     mediaUrl: String = "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4",
     exoplayerBuilder: ExoPlayer.Builder? = null,
+    onFullScreenClick:()->Unit= {},
+    getExoplayer:(ExoPlayer)->Unit={},
+    isFullScreenMode:Boolean= false
 ) {
     val context = LocalContext.current
     var areControlsVisible by remember {
         mutableStateOf(false)
     }
-
     LaunchedEffect(key1 = areControlsVisible) {
         if (areControlsVisible) {
             delay(5000)
@@ -53,6 +74,10 @@ fun CustomExoplayer(
 
     var brightnessLevel by remember {
         mutableFloatStateOf(context.getCurrentBrightness())
+    }
+
+    var videPlaybackPosition by remember {
+        mutableFloatStateOf(0f)
     }
 
     val exoPlayer = remember {
@@ -70,16 +95,41 @@ fun CustomExoplayer(
                 playWhenReady = true
             }
     }
+    LaunchedEffect(key1 = exoPlayer) {
+        getExoplayer(exoPlayer)
+    }
 
     val currentExoplayerPosition = exoPlayer.currentPositionFlow().collectAsState(initial = 0L)
 
     Box(modifier = modifier) {
         DisposableEffect(key1 = Unit) { onDispose { exoPlayer.release() } }
-
+        Canvas(modifier = Modifier
+            .fillMaxSize()
+            .pointerInput(Unit) {
+                val width = this.size.width
+                detectTapGestures(onDoubleTap = {
+                    if (it.x > width / 2) {
+                        Log.d("TAG", "CustomExoplayer: Double tap on right")
+                    } else {
+                        Log.d("TAG", "CustomExoplayer: Double tap on left")
+                    }
+                })
+            }) {
+            
+        }
         AndroidView(
-            modifier = Modifier.clickable {
-                areControlsVisible = !areControlsVisible
-            },
+            modifier = Modifier
+                .combinedClickable(
+                    onClick = {
+                        areControlsVisible = !areControlsVisible
+                    },
+                    onLongClick = {
+
+                    },
+                    onDoubleClick = {
+
+                    },
+                ),
             factory = {
                 PlayerView(context).apply {
                     player = exoPlayer
@@ -116,12 +166,28 @@ fun CustomExoplayer(
                     brightnessLevel = brightnessLevel,
                     volumeLevel = 50f,
                     onSeekBarValueChange = { percent ->
+                       // videPlaybackPosition = percent
                         exoPlayer.seekTo((exoPlayer.duration * percent).toLong())
                     },
                     currentDuration = currentExoplayerPosition.value,
                     totalDuration = totalDuration,
+                   // seekbarPosition = videPlaybackPosition
                 )
             }
+        }
+
+        // pause/play toggle button
+        IconButton(modifier = Modifier
+            .size(40.dp)
+            .align(Alignment.BottomEnd), onClick = {
+
+        }) {
+            Image(
+                modifier = Modifier.fillMaxSize(),
+                contentScale = ContentScale.Crop,
+                painter = if (isFullScreenMode) painterResource(id = R.drawable.ic_fullscreen) else painterResource(id = R.drawable.ic_fullscreen_exit),
+                contentDescription = "Full Screen/Mini Screen",
+            )
         }
     }
 }
@@ -132,6 +198,11 @@ private fun ExoplayerPreview() {
     CustomExoplayer(
         modifier = Modifier.fillMaxSize()
     )
+}
+
+
+fun EasyExoplayer(){
+
 }
 
 
