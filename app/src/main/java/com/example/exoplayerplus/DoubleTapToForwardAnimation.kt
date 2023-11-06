@@ -6,6 +6,7 @@ import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.FastOutLinearInEasing
 import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.tween
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Box
@@ -78,7 +79,7 @@ fun DoubleTapToForwardIcon(isForward:Boolean = true,onClick: () -> Unit = {}) {
         {
             sliding.animateTo(
                 targetValue = 100f,
-                animationSpec = tween(500, easing = LinearEasing)
+                animationSpec = tween(400, easing = LinearEasing)
             )
         }
     }
@@ -86,7 +87,7 @@ fun DoubleTapToForwardIcon(isForward:Boolean = true,onClick: () -> Unit = {}) {
         if (animationRunning) {
             alpha.animateTo(
                 targetValue = 0f,
-                animationSpec = tween(500, easing = LinearEasing)
+                animationSpec = tween(400, easing = LinearEasing)
             )
         }
     }
@@ -157,22 +158,29 @@ fun DoubleTapToForwardIcon(isForward:Boolean = true,onClick: () -> Unit = {}) {
         if (alpha.value < 100) {
             Box(
                 modifier = Modifier
+                    .fillMaxWidth()
                     .run {
                         if (!isForward) {
                             this.align(Alignment.CenterEnd)
                         } else {
-                            this
+                            this.align(Alignment.CenterStart)
                         }
                     }
                     .height(height = with(LocalDensity.current) { height.toDp() })
+                    .background(Color.Black)
             ) {
                 Row(
                     modifier = Modifier
                         .alpha(alpha.value / 100)
-                        .align(Alignment.Center)
-                ) {
+                        .run {
+                            if (!isForward) {
+                                this.align(Alignment.CenterEnd)
+                            } else {
+                                this.align(Alignment.CenterStart)
+                            }
+                        }                ) {
                     Text(
-                        text =if (isForward) "++10" else "--10", color = Color.White, modifier = Modifier.run {
+                        text =if (isForward) "++10" else "--10", color = Color.White, modifier = Modifier.fillMaxWidth().run {
                             if (isForward) {
                                 this.padding(start = 14.dp + sliding.value.toInt().dp)
                             }
@@ -191,10 +199,9 @@ fun DoubleTapToForwardIcon(isForward:Boolean = true,onClick: () -> Unit = {}) {
 private fun DoubleTapToForwardIconPreview() {
     Box(modifier = Modifier.fillMaxWidth()) {
         Box(
-            Modifier
-                .align(Alignment.CenterEnd)
+
         ) {
-            DoubleTapToForwardIcon(isForward = false)
+            DoubleTapToForwardIcon(isForward = true)
         }
     }
 }
