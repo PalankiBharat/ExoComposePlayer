@@ -7,6 +7,7 @@ import androidx.compose.animation.core.FastOutLinearInEasing
 import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -26,6 +27,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.rotate
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.LocalDensity
@@ -67,7 +69,7 @@ fun DoubleTapToForwardIcon(isForward:Boolean = true,onClick: () -> Unit = {}) {
         {
             rotation.animateTo(
                 targetValue =  60f,
-                animationSpec = tween(durationMillis = 250, easing = FastOutLinearInEasing),
+                animationSpec = tween(durationMillis = 150, easing = FastOutLinearInEasing),
             )
         }
     }
@@ -102,12 +104,12 @@ fun DoubleTapToForwardIcon(isForward:Boolean = true,onClick: () -> Unit = {}) {
         {
             rotation.animateTo(
                 targetValue = 0f,
-                animationSpec = tween(durationMillis = 60, easing = FastOutLinearInEasing),
+                animationSpec = tween(durationMillis = 40, easing = FastOutLinearInEasing),
             )
         }
     }
 
-    Box(modifier = Modifier.clickable {
+    Box(modifier = Modifier.clickable(interactionSource = MutableInteractionSource(), indication = null) {
         animationRunning = true
         onClick()
     }) {
@@ -141,12 +143,12 @@ fun DoubleTapToForwardIcon(isForward:Boolean = true,onClick: () -> Unit = {}) {
                     .rotate(rotation.value)
                     .align(Alignment.Center),
                 contentDescription = "",
-
+                tint = Color.White,
                 painter = painterResource(id = R.drawable.forward_only)
             )
             if (alpha.value == 100f) {
                 Text(
-                    text = "10", modifier = Modifier
+                    text = "10", color = Color.White, modifier = Modifier
                         .align(Alignment.Center)
                         .padding(4.dp)
                 )
@@ -170,7 +172,7 @@ fun DoubleTapToForwardIcon(isForward:Boolean = true,onClick: () -> Unit = {}) {
                         .align(Alignment.Center)
                 ) {
                     Text(
-                        text =if (isForward) "++10" else "--10", modifier = Modifier.run {
+                        text =if (isForward) "++10" else "--10", color = Color.White, modifier = Modifier.run {
                             if (isForward) {
                                 this.padding(start = 14.dp + sliding.value.toInt().dp)
                             }

@@ -113,7 +113,17 @@ fun CenterPlayerControls(
             }
 
             // replay button
-            IconButton(modifier = Modifier.size(40.dp), onClick = {
+            Box(modifier = Modifier.weight(1f)) {
+                Box(
+                    Modifier
+                        .align(Alignment.CenterEnd)
+                ) {
+                    DoubleTapToForwardIcon(isForward = false){
+                        onReplayClick()
+                    }
+                }
+            }
+           /* IconButton(modifier = Modifier.size(40.dp), onClick = {
                 onReplayClick()
             }) {
                 Image(
@@ -122,7 +132,7 @@ fun CenterPlayerControls(
                     painter = painterResource(id = R.drawable.ic_exo_icon_rewind),
                     contentDescription = "Replay 15 seconds",
                 )
-            }
+            }*/
 
             // pause/play toggle button
             IconButton(modifier = Modifier.size(40.dp), onClick = {
@@ -142,7 +152,16 @@ fun CenterPlayerControls(
             }
 
             // forward button
-            IconButton(modifier = Modifier.size(40.dp), onClick = {
+
+            Box(modifier = Modifier.weight(1f)) {
+                Box{
+                    DoubleTapToForwardIcon(isForward = true){
+                        onForwardClick()
+                    }
+                }
+            }
+
+           /* IconButton(modifier = Modifier.size(40.dp), onClick = {
                 onForwardClick()
             }) {
                 Image(
@@ -151,7 +170,7 @@ fun CenterPlayerControls(
                     painter = painterResource(id = R.drawable.ic_exo_icon_fastforward),
                     contentDescription = "Forward 10 seconds",
                 )
-            }
+            }*/
 
             // Volume Slider
             if (isInFullPlayerMode) {
@@ -204,7 +223,8 @@ fun CenterPlayerControls(
             Image(
                 modifier = Modifier
                     .size(40.dp)
-                    .align(Alignment.BottomEnd).clickable {
+                    .align(Alignment.BottomEnd)
+                    .clickable {
                         val activity = context as Activity
 
                         activity.requestedOrientation =
