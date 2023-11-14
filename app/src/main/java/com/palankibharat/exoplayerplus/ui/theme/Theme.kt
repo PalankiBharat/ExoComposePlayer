@@ -1,4 +1,4 @@
-package com.example.exoplayerplus.ui.theme
+package com.palankibharat.exoplayerplus.ui.theme
 
 import android.app.Activity
 import android.os.Build

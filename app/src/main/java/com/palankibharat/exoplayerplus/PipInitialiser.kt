@@ -1,4 +1,4 @@
-package com.example.exoplayerplus
+package com.palankibharat.exoplayerplus
 
 import android.app.Activity
 import android.app.PictureInPictureParams

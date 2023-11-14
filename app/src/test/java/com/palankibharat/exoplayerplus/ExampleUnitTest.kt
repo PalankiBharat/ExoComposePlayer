@@ -1,4 +1,4 @@
-package com.example.exoplayerplus
+package com.palankibharat.exoplayerplus
 
 import org.junit.Test
 

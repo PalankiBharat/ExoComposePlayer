@@ -1,4 +1,4 @@
-package com.example.exoplayerplus.ui.theme
+package com.palankibharat.exoplayerplus.ui.theme
 
 import androidx.compose.ui.graphics.Color
 
