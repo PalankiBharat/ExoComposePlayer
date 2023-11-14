@@ -1,4 +1,4 @@
-package com.palankibharat.exoplayerplus
+package com.palankibharat.exoplayer_plus
 
 import androidx.annotation.FloatRange
 import androidx.compose.foundation.interaction.MutableInteractionSource

@@ -15,4 +15,4 @@ dependencyResolutionManagement {
 
 rootProject.name = "ExoPlayerPlus"
 include(":app")
- 
+include(":exoplayer-plus")
