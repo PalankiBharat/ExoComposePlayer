@@ -155,7 +155,7 @@ fun CenterPlayerControls(
             // forward button
 
             Box(modifier = Modifier.height(48.dp).weight(1f)) {
-                Box(modifier = Modifier.fillMaxWidth().background(Color.Cyan)){
+                Box(modifier = Modifier.fillMaxWidth()){
                     DoubleTapToForwardIcon(isForward = true){
                         onForwardClick()
                     }

@@ -1,7 +1,7 @@
 package com.example.exoplayerplus
 
 import android.app.Activity
-import android.content.pm.ActivityInfo
+import android.net.Uri
 import android.util.Log
 import android.view.ViewGroup
 import android.widget.FrameLayout
@@ -10,8 +10,6 @@ import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.ExperimentalFoundationApi
-import androidx.compose.foundation.Image
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Box
@@ -20,7 +18,6 @@ import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.size
-import androidx.compose.material3.IconButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
@@ -31,34 +28,28 @@ import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.drawWithContent
 import androidx.compose.ui.input.pointer.pointerInput
-import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
+import androidx.media3.common.C
 import androidx.media3.common.MediaItem
+import androidx.media3.common.MimeTypes
 import androidx.media3.common.Player
 import androidx.media3.exoplayer.ExoPlayer
 import androidx.media3.ui.PlayerView
 import kotlinx.coroutines.delay
-import kotlin.time.Duration.Companion.days
-import kotlin.time.Duration.Companion.seconds
-
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun CustomExoplayer(
-    modifier: Modifier = Modifier,
+    modifier: Modifier = Modifier.fillMaxWidth().aspectRatio(16f / 9f),
     mediaUrl: String = "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4",
     exoplayerBuilder: ExoPlayer.Builder? = null,
     onFullScreenClick: () -> Unit = {},
     getExoplayer: (ExoPlayer) -> Unit = {},
-    playerModes: PlayerModes = PlayerModes.MINI_PLAYER
+    playerModes: PlayerModes = PlayerModes.MINI_PLAYER,
 ) {
     val context = LocalContext.current
     val activity = context as Activity
@@ -87,6 +78,11 @@ fun CustomExoplayer(
     }
 
     val exoPlayer = remember {
+        val subtitle = MediaItem.SubtitleConfiguration.Builder(Uri.parse(""))
+            .setMimeType(MimeTypes.APPLICATION_SUBRIP)
+            .setLanguage("en")
+            .setSelectionFlags(C.SELECTION_FLAG_DEFAULT)
+            .build()
         exoplayerBuilder?.build() ?: ExoPlayer.Builder(context).build().apply {
             setMediaItem(
                 MediaItem.fromUri(mediaUrl),
@@ -107,30 +103,27 @@ fun CustomExoplayer(
     val currentExoplayerPosition = exoPlayer.currentPositionFlow().collectAsState(initial = 0L)
 
     Box(
-        modifier = Modifier
-            .fillMaxWidth()
-            .aspectRatio(16f / 9f)
-            .then(modifier)
+        modifier = modifier,
     ) {
         DisposableEffect(key1 = Unit) { onDispose { exoPlayer.release() } }
-        Canvas(modifier = Modifier
-            .fillMaxSize()
-            .pointerInput(Unit) {
-                val width = this.size.width
-                detectTapGestures(onTap = {
-                    areControlsVisible = !areControlsVisible
-                }, onDoubleTap = {
-                    if (it.x > width / 2) {
-                        Log.d("TAG", "CustomExoplayer: Double tap on right")
-                        exoPlayer.seekTo(exoPlayer.currentPosition + 10000)
-                    } else {
-                        Log.d("TAG", "CustomExoplayer: Double tap on left")
-                        exoPlayer.seekTo(exoPlayer.currentPosition - 10000)
-
-                    }
-                })
-            }) {
-
+        Canvas(
+            modifier = Modifier
+                .fillMaxSize()
+                .pointerInput(Unit) {
+                    val width = this.size.width
+                    detectTapGestures(onTap = {
+                        areControlsVisible = !areControlsVisible
+                    }, onDoubleTap = {
+                        if (it.x > width / 2) {
+                            Log.d("TAG", "CustomExoplayer: Double tap on right")
+                            exoPlayer.seekTo(exoPlayer.currentPosition + 10000)
+                        } else {
+                            Log.d("TAG", "CustomExoplayer: Double tap on left")
+                            exoPlayer.seekTo(exoPlayer.currentPosition - 10000)
+                        }
+                    })
+                },
+        ) {
         }
         AndroidView(
             modifier = Modifier.combinedClickable(
@@ -138,10 +131,8 @@ fun CustomExoplayer(
                     areControlsVisible = !areControlsVisible
                 },
                 onLongClick = {
-
                 },
                 onDoubleClick = {
-
                 },
             ),
             factory = {
@@ -185,7 +176,7 @@ fun CustomExoplayer(
                     },
                     currentDuration = currentExoplayerPosition.value,
                     totalDuration = totalDuration,
-                    playerMode = playerMode
+                    playerMode = playerMode,
 
                     // seekbarPosition = videPlaybackPosition
                 )
@@ -198,13 +189,10 @@ fun CustomExoplayer(
 @Composable
 private fun ExoplayerPreview() {
     CustomExoplayer(
-        modifier = Modifier.fillMaxSize()
+        modifier = Modifier.fillMaxSize(),
     )
 }
-
 
 enum class PlayerModes {
     FULL_PLAYER, MINI_PLAYER
 }
-
-

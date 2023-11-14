@@ -1,12 +1,9 @@
 package com.example.exoplayerplus
 
-
-import android.util.Log
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.FastOutLinearInEasing
 import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.tween
-import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Box
@@ -37,13 +34,10 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 
 @Composable
-fun DoubleTapToForwardIcon(isForward:Boolean = true,onClick: () -> Unit = {}) {
-
-
+fun DoubleTapToForwardIcon(isForward: Boolean = true, onClick: () -> Unit = {}) {
     val rotation by remember {
         mutableStateOf(Animatable(0f))
     }
-
 
     val sliding by remember {
         mutableStateOf(Animatable(0f))
@@ -53,33 +47,25 @@ fun DoubleTapToForwardIcon(isForward:Boolean = true,onClick: () -> Unit = {}) {
         mutableStateOf(Animatable(100f))
     }
 
-
     var animationRunning by remember { mutableStateOf(false) }
 
     var height by remember {
         mutableIntStateOf(0)
     }
 
-    LaunchedEffect(height) {
-        Log.d("TAG", "DoubleTapToForwardIcon: $height")
-    }
-
-
     LaunchedEffect(animationRunning) {
-        if (animationRunning)
-        {
+        if (animationRunning) {
             rotation.animateTo(
-                targetValue =  60f,
+                targetValue = 60f,
                 animationSpec = tween(durationMillis = 150, easing = FastOutLinearInEasing),
             )
         }
     }
     LaunchedEffect(animationRunning) {
-        if (animationRunning)
-        {
+        if (animationRunning) {
             sliding.animateTo(
                 targetValue = 100f,
-                animationSpec = tween(400, easing = LinearEasing)
+                animationSpec = tween(400, easing = LinearEasing),
             )
         }
     }
@@ -87,7 +73,7 @@ fun DoubleTapToForwardIcon(isForward:Boolean = true,onClick: () -> Unit = {}) {
         if (animationRunning) {
             alpha.animateTo(
                 targetValue = 0f,
-                animationSpec = tween(400, easing = LinearEasing)
+                animationSpec = tween(400, easing = LinearEasing),
             )
         }
     }
@@ -101,8 +87,7 @@ fun DoubleTapToForwardIcon(isForward:Boolean = true,onClick: () -> Unit = {}) {
     }
 
     LaunchedEffect(rotation.value) {
-        if (!rotation.isRunning)
-        {
+        if (!rotation.isRunning) {
             rotation.animateTo(
                 targetValue = 0f,
                 animationSpec = tween(durationMillis = 40, easing = FastOutLinearInEasing),
@@ -110,22 +95,26 @@ fun DoubleTapToForwardIcon(isForward:Boolean = true,onClick: () -> Unit = {}) {
         }
     }
 
-    Box(modifier = Modifier.clickable(interactionSource = MutableInteractionSource(), indication = null) {
-        animationRunning = true
-        onClick()
-    }) {
-        Box(modifier = Modifier
-            .wrapContentHeight()
-            .run {
-                if (!isForward) {
-                    this.align(Alignment.CenterEnd)
-                } else {
-                    this
+    Box(
+        modifier = Modifier.fillMaxWidth().clickable(interactionSource = MutableInteractionSource(), indication = null) {
+            animationRunning = true
+            onClick()
+        },
+    ) {
+        // Icon Box
+        Box(
+            modifier = Modifier
+                .wrapContentHeight()
+                .run {
+                    if (!isForward) {
+                        this.align(Alignment.CenterEnd)
+                    } else {
+                        this.align(Alignment.CenterStart)
+                    }
                 }
-            }
-            .onGloballyPositioned {
-                height = it.size.height
-            }
+                .onGloballyPositioned {
+                    height = it.size.height
+                },
 
         ) {
             Icon(
@@ -138,23 +127,26 @@ fun DoubleTapToForwardIcon(isForward:Boolean = true,onClick: () -> Unit = {}) {
                         } else {
                             this
                         }
-
                     }
                     .rotate(-60f)
                     .rotate(rotation.value)
                     .align(Alignment.Center),
                 contentDescription = "",
                 tint = Color.White,
-                painter = painterResource(id = R.drawable.forward_only)
+                painter = painterResource(id = R.drawable.forward_only),
             )
             if (alpha.value == 100f) {
                 Text(
-                    text = "10", color = Color.White, modifier = Modifier
+                    text = "10",
+                    color = Color.White,
+                    modifier = Modifier
                         .align(Alignment.Center)
-                        .padding(4.dp)
+                        .padding(4.dp),
                 )
             }
         }
+
+        // ++ or -- Text
         if (alpha.value < 100) {
             Box(
                 modifier = Modifier
@@ -166,43 +158,48 @@ fun DoubleTapToForwardIcon(isForward:Boolean = true,onClick: () -> Unit = {}) {
                             this.align(Alignment.CenterStart)
                         }
                     }
-                    .height(height = with(LocalDensity.current) { height.toDp() })
-                    .background(Color.Black)
+                    .height(height = with(LocalDensity.current) { height.toDp() }),
             ) {
                 Row(
                     modifier = Modifier
                         .alpha(alpha.value / 100)
                         .run {
-                            if (!isForward) {
-                                this.align(Alignment.CenterEnd)
-                            } else {
+                            if (isForward) {
                                 this.align(Alignment.CenterStart)
+                            } else {
+                                this.align(Alignment.CenterEnd)
                             }
-                        }                ) {
+                        },
+                ) {
                     Text(
-                        text =if (isForward) "++10" else "--10", color = Color.White, modifier = Modifier.fillMaxWidth().run {
+                        text = if (isForward) "++10" else "--10",
+                        color = Color.White,
+                        modifier = Modifier.fillMaxWidth().run {
                             if (isForward) {
                                 this.padding(start = 14.dp + sliding.value.toInt().dp)
-                            }
+                            } else {
                                 this.padding(end = 14.dp + sliding.value.toInt().dp)
-                        })
+                            }
+                        },
+                    )
                 }
             }
         }
     }
-
-
 }
 
-@Preview(backgroundColor = 0xFFFFFFFF, showBackground = true)
+@Preview(backgroundColor = 0x000000, showBackground = true)
 @Composable
 private fun DoubleTapToForwardIconPreview() {
     Box(modifier = Modifier.fillMaxWidth()) {
-        Box(
-
-        ) {
-            DoubleTapToForwardIcon(isForward = true)
-        }
+        DoubleTapToForwardIcon(isForward = true)
     }
 }
 
+@Preview(backgroundColor = 0x000000, showBackground = true)
+@Composable
+private fun DoubleTapToBackwardIconPreview() {
+    Box(modifier = Modifier.fillMaxWidth()) {
+        DoubleTapToForwardIcon(isForward = false)
+    }
+}

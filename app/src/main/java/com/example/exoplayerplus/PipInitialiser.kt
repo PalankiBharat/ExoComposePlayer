@@ -8,7 +8,6 @@ import android.os.Build
 import android.util.Log
 import android.util.Rational
 import androidx.activity.ComponentActivity
-import androidx.activity.OnBackPressedCallback
 import androidx.lifecycle.DefaultLifecycleObserver
 import androidx.lifecycle.LifecycleCoroutineScope
 import androidx.lifecycle.LifecycleOwner
@@ -22,11 +21,9 @@ import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.filterIsInstance
 import kotlinx.coroutines.launch
 
+class PiPActivity(val activity: ComponentActivity) : DefaultLifecycleObserver {
 
- class PiPActivity(val activity: ComponentActivity) : DefaultLifecycleObserver {
-
-    fun initPip()
-    {
+    fun initPip() {
         activity.lifecycle.addObserver(this)
     }
 
@@ -35,11 +32,9 @@ import kotlinx.coroutines.launch
         Log.d("TAG", "onCreate: OnCreate")
         activity.apply {
             addOnPictureInPictureModeChangedListener {
-                if (it.isInPictureInPictureMode)
-                {
+                if (it.isInPictureInPictureMode) {
                     lifecycleScope.invokeEventBus(PipEvents.IS_IN_PIP_MODE)
-                }
-                else{
+                } else {
                     lifecycleScope.invokeEventBus(PipEvents.IS_NOT_IN_PIP_MODE)
                 }
             }
@@ -48,40 +43,34 @@ import kotlinx.coroutines.launch
 
     override fun onPause(owner: LifecycleOwner) {
         super.onPause(owner)
-        if (activity.doesSupportPip())
-        {
+        if (activity.doesSupportPip()) {
             activity.initPip()
         }
     }
-
 }
-
-
 
 private fun Activity.checkPipMode(lifecycleOwner: LifecycleOwner) {
     lifecycleOwner.lifecycleScope.launch {
         EventBus.events.collectLatest { event ->
-            if (event ==  Build.VERSION.SDK_INT >= Build.VERSION_CODES.N && this@checkPipMode.isInPictureInPictureMode) {
+            if (event == Build.VERSION.SDK_INT >= Build.VERSION_CODES.N && this@checkPipMode.isInPictureInPictureMode) {
                 finishAndRemoveTask()
             }
         }
     }
 }
 
-
-fun Activity.initPip(){
+fun Activity.initPip() {
     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
         this.enterPictureInPictureMode(
             PictureInPictureParams.Builder()
                 .setAspectRatio(Rational(16, 9))
-                .build()
+                .build(),
         )
-    }else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N){
+    } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
         this.enterPictureInPictureMode()
-    }else{
-       // Before that no PIP Mode
+    } else {
+        // Before that no PIP Mode
     }
-
 }
 
 fun Context.doesSupportPip(): Boolean {
@@ -92,7 +81,6 @@ fun Context.doesSupportPip(): Boolean {
         false
     }
 }
-
 
 enum class PipEvents {
     ENABLE_PIP_MODE, IS_IN_PIP_MODE, IS_NOT_IN_PIP_MODE
@@ -112,8 +100,7 @@ object EventBus {
     }
 }
 
-fun LifecycleCoroutineScope.invokeEventBus(event:Any)
-{
+fun LifecycleCoroutineScope.invokeEventBus(event: Any) {
     this.launch {
         EventBus.invokeEvent(event)
     }
