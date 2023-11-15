@@ -220,7 +220,7 @@ fun CenterPlayerControls(
             )
         }
 
-        if (playerMode == PlayerModes.MINI_PLAYER) {
+        /*if (playerMode == PlayerModes.MINI_PLAYER) {
             Image(
                 modifier = Modifier
                     .size(40.dp)
@@ -235,7 +235,8 @@ fun CenterPlayerControls(
                 painter = painterResource(id = R.drawable.ic_fullscreen),
                 contentDescription = "Full Screen",
             )
-        }else{
+        }
+        else{
             Image(
                 modifier = Modifier
                     .size(28.dp)
@@ -249,7 +250,7 @@ fun CenterPlayerControls(
                 painter = painterResource(id = R.drawable.ic_fullscreen_exit),
                 contentDescription = "Mini Screen",
             )
-        }
+        }*/
     }
 }
 

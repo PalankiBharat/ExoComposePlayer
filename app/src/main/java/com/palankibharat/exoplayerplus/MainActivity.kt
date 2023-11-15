@@ -28,7 +28,7 @@ class MainActivity : ComponentActivity() {
                     color = MaterialTheme.colorScheme.background,
                 ) {
                     Column {
-                        CustomExoplayer(modifier = Modifier.fillMaxWidth())
+                        CustomExoplayer()
                     }
                 }
             }
