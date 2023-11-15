@@ -1,7 +1,8 @@
 
-# Exoplayer Plus
+# ExoComposePlayer - Simple Player Built upon Exoplayer 
+# :construction: Under Development :construction:
 
-Exoplayer Plus is an Android library built upon ExoPlayer, designed to simplify the integration of video playback functionality into your Jetpack Compose applications. With a focus on simplicity and flexibility, ComposePlayerLib allows users to effortlessly add a video player to their app using just a URL. The library provides customizable player controls, ensuring a seamless and tailored user experience.
+ExoComposePlayer is an Android library built upon ExoPlayer, designed to simplify the integration of video playback functionality into your Jetpack Compose applications. With a focus on simplicity and flexibility, ComposePlayerLib allows users to effortlessly add a video player to their app using just a URL. The library provides customizable player controls, ensuring a seamless and tailored user experience.
 
 
 
