@@ -56,6 +56,7 @@ dependencies {
     implementation("androidx.media3:media3-ui:1.1.1")
 }
 
+
 publishing {
     publications {
         register<MavenPublication>("release") {
