@@ -15,6 +15,13 @@ android {
         consumerProguardFiles("consumer-rules.pro")
     }
 
+    publishing {
+        singleVariant("release") {
+            withSourcesJar()
+            withJavadocJar()
+        }
+    }
+
     buildTypes {
         release {
             isMinifyEnabled = false
@@ -52,16 +59,19 @@ dependencies {
     implementation("androidx.media3:media3-ui:1.1.1")
 }
 
-afterEvaluate {
-    publishing {
-        publications {
-            create<MavenPublication>("maven") {
-                groupId = "com.github.PalankiBharat"
-                artifactId = "exoplayer-plus"
-                version = "0.1.5"
+publishing {
+    publications {
+        register<MavenPublication>("release") {
+            groupId = "com.github.PalankiBharat"
+            artifactId = "ExoplayerPlus"
+            version = "0.1.6"
+
+            afterEvaluate {
+                from(components["release"])
             }
         }
     }
 }
+
 
 
