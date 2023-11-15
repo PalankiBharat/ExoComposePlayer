@@ -30,7 +30,6 @@ import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 
 @Composable
@@ -188,7 +187,6 @@ fun DoubleTapToForwardIcon(isForward: Boolean = true, onClick: () -> Unit = {}) 
     }
 }
 
-@Preview(backgroundColor = 0x000000, showBackground = true)
 @Composable
 private fun DoubleTapToForwardIconPreview() {
     Box(modifier = Modifier.fillMaxWidth()) {
@@ -196,7 +194,6 @@ private fun DoubleTapToForwardIconPreview() {
     }
 }
 
-@Preview(backgroundColor = 0x000000, showBackground = true)
 @Composable
 private fun DoubleTapToBackwardIconPreview() {
     Box(modifier = Modifier.fillMaxWidth()) {

@@ -30,7 +30,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.media3.common.C
 import androidx.media3.common.MediaItem
@@ -45,9 +44,9 @@ import kotlinx.coroutines.delay
 fun CustomExoplayer(
     modifier: Modifier = Modifier.fillMaxWidth().aspectRatio(16f / 9f),
     mediaUrl: String = "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4",
-    exoplayerBuilder: ExoPlayer.Builder? = null,
+    //exoplayerBuilder: ExoPlayer.Builder? = null,
     onFullScreenClick: () -> Unit = {},
-    getExoplayer: (ExoPlayer) -> Unit = {},
+    //getExoplayer: (ExoPlayer) -> Unit = {},
     playerModes: PlayerModes = PlayerModes.MINI_PLAYER,
 ) {
     val context = LocalContext.current
@@ -82,7 +81,8 @@ fun CustomExoplayer(
             .setLanguage("en")
             .setSelectionFlags(C.SELECTION_FLAG_DEFAULT)
             .build()
-        exoplayerBuilder?.build() ?: ExoPlayer.Builder(context).build().apply {
+       // exoplayerBuilder?.build() ?:
+        ExoPlayer.Builder(context).build().apply {
             setMediaItem(
                 MediaItem.fromUri(mediaUrl),
             )
@@ -96,7 +96,7 @@ fun CustomExoplayer(
         }
     }
     LaunchedEffect(key1 = exoPlayer) {
-        getExoplayer(exoPlayer)
+       // getExoplayer(exoPlayer)
     }
 
     val currentExoplayerPosition = exoPlayer.currentPositionFlow().collectAsState(initial = 0L)
@@ -182,14 +182,6 @@ fun CustomExoplayer(
             }
         }
     }
-}
-
-@Preview
-@Composable
-private fun ExoplayerPreview() {
-    CustomExoplayer(
-        modifier = Modifier.fillMaxSize(),
-    )
 }
 
 enum class PlayerModes {

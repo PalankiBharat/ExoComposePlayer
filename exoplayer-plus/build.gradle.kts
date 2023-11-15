@@ -47,13 +47,10 @@ android {
 }
 
 dependencies {
-    implementation("androidx.core:core-ktx:1.12.0")
     implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.6.2")
     implementation("androidx.activity:activity-compose:1.8.0")
     implementation(platform("androidx.compose:compose-bom:2023.10.01"))
     implementation("androidx.compose.ui:ui")
-    implementation("androidx.compose.ui:ui-graphics")
-    implementation("androidx.compose.ui:ui-tooling-preview")
     implementation("androidx.compose.material3:material3")
     implementation("androidx.media3:media3-exoplayer:1.1.1")
     implementation("androidx.media3:media3-ui:1.1.1")
@@ -64,7 +61,7 @@ publishing {
         register<MavenPublication>("release") {
             groupId = "com.github.PalankiBharat"
             artifactId = "ExoplayerPlus"
-            version = "0.1.6"
+            version = "0.1.7"
 
             afterEvaluate {
                 from(components["release"])

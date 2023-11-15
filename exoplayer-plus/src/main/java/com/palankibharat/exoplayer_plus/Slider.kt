@@ -17,7 +17,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.TransformOrigin
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.layout
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.DpSize
@@ -74,11 +73,13 @@ fun HSlider(modifier: Modifier = Modifier ,@FloatRange(from = 0.0, to = 1.0) def
 
 }
 
-@Preview
+
+/*
 @Composable
 fun HSliderPrev() {
     HSlider(modifier = Modifier,0.4f, {})
 }
+*/
 
 data class SliderStyle(
     val sliderWidth:Dp,

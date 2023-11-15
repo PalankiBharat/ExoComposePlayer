@@ -37,7 +37,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.media3.common.Player
@@ -254,8 +253,7 @@ fun CenterPlayerControls(
     }
 }
 
-@Preview(heightDp = 360, widthDp = 800)
-@Composable
+/*@Composable
 fun PlayerControlsFillPlayerPreview() {
     CenterPlayerControls(
         brightnessLevel = 50f,
@@ -266,7 +264,6 @@ fun PlayerControlsFillPlayerPreview() {
     )
 }
 
-@Preview
 @Composable
 fun PlayerControlsPreview() {
     Column(modifier = Modifier.fillMaxHeight()) {
@@ -281,7 +278,7 @@ fun PlayerControlsPreview() {
             totalDuration = 500000,
         )
     }
-}
+}*/
 
 fun Player.remainingTimeFlow(
     updateFrequency: Duration = 1.seconds,
