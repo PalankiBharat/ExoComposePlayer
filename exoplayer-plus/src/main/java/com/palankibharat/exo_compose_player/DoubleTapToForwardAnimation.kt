@@ -1,4 +1,4 @@
-package com.palankibharat.exoplayer_plus
+package com.palankibharat.exo_compose_player
 
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.FastOutLinearInEasing

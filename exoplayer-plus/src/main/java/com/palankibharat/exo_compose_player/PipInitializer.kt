@@ -1,4 +1,4 @@
-package com.palankibharat.exoplayer_plus
+package com.palankibharat.exo_compose_player
 
 import android.app.Activity
 import android.app.PictureInPictureParams
@@ -21,9 +21,9 @@ import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.filterIsInstance
 import kotlinx.coroutines.launch
 
-class PiPActivity(val activity: ComponentActivity) : DefaultLifecycleObserver {
+class PipInitializer(val activity: ComponentActivity) : DefaultLifecycleObserver {
 
-    fun initPip() {
+    fun initialize() {
         activity.lifecycle.addObserver(this)
     }
 
@@ -44,7 +44,7 @@ class PiPActivity(val activity: ComponentActivity) : DefaultLifecycleObserver {
     override fun onPause(owner: LifecycleOwner) {
         super.onPause(owner)
         if (activity.doesSupportPip()) {
-            activity.initPip()
+            activity.initialize()
         }
     }
 }
@@ -59,7 +59,7 @@ private fun Activity.checkPipMode(lifecycleOwner: LifecycleOwner) {
     }
 }
 
-fun Activity.initPip() {
+fun Activity.initialize() {
     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
         this.enterPictureInPictureMode(
             PictureInPictureParams.Builder()

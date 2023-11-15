@@ -8,16 +8,16 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.ui.Modifier
-import com.palankibharat.exoplayer_plus.CustomExoplayer
-import com.palankibharat.exoplayer_plus.PiPActivity
+import com.palankibharat.exo_compose_player.ExoComposePlayer
+import com.palankibharat.exo_compose_player.PipInitializer
 import com.palankibharat.exoplayerplus.ui.theme.ExoPlayerPlusTheme
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        val pip = PiPActivity(this)
-        pip.initPip()
+        val pip = PipInitializer(this)
+        pip.initialize()
 
         setContent {
             ExoPlayerPlusTheme {
@@ -27,7 +27,7 @@ class MainActivity : ComponentActivity() {
                     color = MaterialTheme.colorScheme.background,
                 ) {
                     Column {
-                        CustomExoplayer()
+                        ExoComposePlayer()
                     }
                 }
             }

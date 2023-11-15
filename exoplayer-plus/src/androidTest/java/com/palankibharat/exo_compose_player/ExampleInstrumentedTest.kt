@@ -1,4 +1,4 @@
-package com.palankibharat.exoplayer_plus
+package com.palankibharat.exo_compose_player
 
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.ext.junit.runners.AndroidJUnit4

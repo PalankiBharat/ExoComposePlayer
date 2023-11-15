@@ -1,4 +1,4 @@
-package com.palankibharat.exoplayer_plus
+package com.palankibharat.exo_compose_player
 
 import android.app.Activity
 import android.net.Uri
@@ -41,7 +41,7 @@ import kotlinx.coroutines.delay
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
-fun CustomExoplayer(
+fun ExoComposePlayer(
     modifier: Modifier = Modifier.fillMaxWidth().aspectRatio(16f / 9f),
     mediaUrl: String = "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4",
     //exoplayerBuilder: ExoPlayer.Builder? = null,

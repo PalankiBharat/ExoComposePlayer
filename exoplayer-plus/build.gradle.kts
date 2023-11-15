@@ -5,7 +5,7 @@ plugins {
 }
 
 android {
-    namespace = "com.palankibharat.exoplayer_plus"
+    namespace = "com.palankibharat.exo_compose_player"
     compileSdk = 33
 
     defaultConfig {
@@ -60,8 +60,8 @@ publishing {
     publications {
         register<MavenPublication>("release") {
             groupId = "com.github.PalankiBharat"
-            artifactId = "ExoplayerPlus"
-            version = "0.1.7"
+            artifactId = "ExoComposePlayer"
+            version = "0.1.8"
 
             afterEvaluate {
                 from(components["release"])
