@@ -24,30 +24,30 @@ Add Internet permission to manifest
 
 Add usesCleartextTraffic as true in manifest
 ```kotlin
-    <application
-        ...
-        android:usesCleartextTraffic="true">
-    </application>
+<application
+    ...
+    android:usesCleartextTraffic="true">
+</application>
 ```
 
 Add usesCleartextTraffic as true in manifest
 ```kotlin
-    CustomExoplayer(
-      modifier = Modifier.fillMaxWidth().aspectRatio(16f/9f),
-      mediaUrl = "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4"
-    )
+CustomExoplayer(
+    modifier = Modifier.fillMaxWidth().aspectRatio(16f/9f),
+    mediaUrl = "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4"
+)
 ```
 
 To Use PIP mode in your App 
 Add the following code to your activity with the Player
 ```kotlin
-    PiPActivity(this).initPip()
+PiPActivity(this).initPip()
 ```
 
 Add this code to the particular activity manifest
 ```kotlin
-    android:supportsPictureInPicture="true"
-    android:configChanges="navigation|screenLayout|orientation"
+android:supportsPictureInPicture="true"
+android:configChanges="navigation|screenLayout|orientation"
 ```
 
 
@@ -76,7 +76,7 @@ Groovy
 ``` 
 dependencies { 
   ...
-  implementation 'com.github.PalankiBharat:ExoPlayerPlus:0.1.7"'
+  implementation 'com.github.PalankiBharat:ExoPlayerPlus:0.1.7'
 }
 ```
 
