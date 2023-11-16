@@ -43,6 +43,7 @@ import kotlinx.coroutines.flow.flowOn
 import java.util.concurrent.TimeUnit
 import kotlin.math.abs
 import kotlin.time.Duration
+import kotlin.time.Duration.Companion.milliseconds
 import kotlin.time.Duration.Companion.seconds
 import kotlin.time.DurationUnit
 import kotlin.time.toDuration
@@ -108,26 +109,33 @@ fun CenterPlayerControls(
             }
 
             // replay button
-            Box(modifier = Modifier.height(48.dp).weight(1f)) {
+            Box(
+                modifier = Modifier
+                    .height(48.dp)
+                    .weight(1f)
+            ) {
                 Box(
                     Modifier
                         .align(Alignment.CenterEnd)
                 ) {
-                    DoubleTapToForwardIcon(isForward = false, forwardIntervalTime = playerControlsConfiguration.forwardClickIntervalTime){
+                    DoubleTapToForwardIcon(
+                        isForward = false,
+                        forwardIntervalTime = playerControlsConfiguration.forwardClickIntervalTime
+                    ) {
                         onReplayClick()
                     }
                 }
             }
-           /* IconButton(modifier = Modifier.size(40.dp), onClick = {
-                onReplayClick()
-            }) {
-                Image(
-                    modifier = Modifier.fillMaxSize(),
-                    contentScale = ContentScale.Crop,
-                    painter = painterResource(id = R.drawable.ic_exo_icon_rewind),
-                    contentDescription = "Replay 15 seconds",
-                )
-            }*/
+            /* IconButton(modifier = Modifier.size(40.dp), onClick = {
+                 onReplayClick()
+             }) {
+                 Image(
+                     modifier = Modifier.fillMaxSize(),
+                     contentScale = ContentScale.Crop,
+                     painter = painterResource(id = R.drawable.ic_exo_icon_rewind),
+                     contentDescription = "Replay 15 seconds",
+                 )
+             }*/
 
             // pause/play toggle button
             IconButton(modifier = Modifier.size(40.dp), onClick = {
@@ -147,27 +155,31 @@ fun CenterPlayerControls(
 
             // forward button
 
-            Box(modifier = Modifier.height(48.dp).weight(1f)) {
-                Box(modifier = Modifier.fillMaxWidth()){
-                    DoubleTapToForwardIcon(isForward = true){
+            Box(
+                modifier = Modifier
+                    .height(48.dp)
+                    .weight(1f)
+            ) {
+                Box(modifier = Modifier.fillMaxWidth()) {
+                    DoubleTapToForwardIcon(isForward = true) {
                         onForwardClick()
                     }
                 }
             }
 
-           /* IconButton(modifier = Modifier.size(40.dp), onClick = {
-                onForwardClick()
-            }) {
-                Image(
-                    modifier = Modifier.fillMaxSize(),
-                    contentScale = ContentScale.Crop,
-                    painter = painterResource(id = R.drawable.ic_exo_icon_fastforward),
-                    contentDescription = "Forward 10 seconds",
-                )
-            }*/
+            /* IconButton(modifier = Modifier.size(40.dp), onClick = {
+                 onForwardClick()
+             }) {
+                 Image(
+                     modifier = Modifier.fillMaxSize(),
+                     contentScale = ContentScale.Crop,
+                     painter = painterResource(id = R.drawable.ic_exo_icon_fastforward),
+                     contentDescription = "Forward 10 seconds",
+                 )
+             }*/
 
             // Volume Slider
-            if (isInFullPlayerMode && playerControlsConfiguration.isVolumeSliderEnabled ) {
+            if (isInFullPlayerMode && playerControlsConfiguration.isVolumeSliderEnabled) {
                 Column {
                     IconButton(onClick = { }) {
                         Image(
@@ -257,25 +269,22 @@ fun Player.remainingTimeFlow(
 }.flowOn(Dispatchers.Main)
 
 fun Player.currentPositionFlow(
-    updateFrequency: Duration = 1.seconds,
+    updateFrequency: Duration = 300.milliseconds,
 ) = flow {
     while (true) {
         if (isPlaying) emit(currentPosition)
         delay(updateFrequency)
     }
-}.flowOn(Dispatchers.Main)
+}.flowOn(Dispatchers.IO)
 
 fun Long.formatMinSec(): String {
-    return if (this == 0L) {
+    return if (this <= 0L) {
         "..."
     } else {
         String.format(
             "%02d:%02d",
             TimeUnit.MILLISECONDS.toMinutes(this),
-            TimeUnit.MILLISECONDS.toSeconds(this) -
-                    TimeUnit.MINUTES.toSeconds(
-                        TimeUnit.MILLISECONDS.toMinutes(this),
-                    ),
+            TimeUnit.MILLISECONDS.toSeconds(this) - TimeUnit.MINUTES.toSeconds(TimeUnit.MILLISECONDS.toMinutes(this)),
         )
     }
 }
