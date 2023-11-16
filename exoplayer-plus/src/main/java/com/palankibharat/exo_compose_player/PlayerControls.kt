@@ -281,11 +281,14 @@ fun Long.formatMinSec(): String {
     return if (this <= 0L) {
         "..."
     } else {
-        String.format(
-            "%02d:%02d",
-            TimeUnit.MILLISECONDS.toMinutes(this),
-            TimeUnit.MILLISECONDS.toSeconds(this) - TimeUnit.MINUTES.toSeconds(TimeUnit.MILLISECONDS.toMinutes(this)),
-        )
+        val hours = this / (1000 * 60 * 60)
+        val minutes = (this % (1000 * 60 * 60)) / (1000 * 60)
+        val seconds = (this % (1000 * 60)) / 1000
+        when {
+            hours > 0 -> String.format("%02d:%02d:%02d", hours, minutes, seconds)
+            minutes > 0 -> String.format("%02d:%02d", minutes, seconds)
+            else -> String.format("00:%02d", seconds)
+        }
     }
 }
 
