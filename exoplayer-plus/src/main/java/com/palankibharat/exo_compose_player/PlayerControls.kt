@@ -25,7 +25,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -51,6 +50,8 @@ import kotlin.time.toDuration
 @Composable
 fun CenterPlayerControls(
     modifier: Modifier = Modifier,
+    playerControlsStyle: PlayerControlsStyle = PlayerDefaults.defaultPlayerControls,
+    playerControlsConfiguration: PlayerControlsConfiguration = PlayerDefaults.defaultPlayerControlsConfiguration,
     onReplayClick: () -> Unit = {},
     onPlayPauseToggle: (isPlaying: Boolean) -> Unit = {},
     onForwardClick: () -> Unit = {},
@@ -63,12 +64,9 @@ fun CenterPlayerControls(
     onVolumeChange: (value: Float) -> Unit = {},
     volumeLevel: Float,
     playerMode: PlayerModes,
+    isPlaying: Boolean,
 ) {
     val context = LocalContext.current
-
-    var isPlayingValue by remember {
-        mutableStateOf(false)
-    }
 
     var videoPlaybackPosition by remember {
         mutableFloatStateOf(seekbarPosition)
@@ -91,7 +89,7 @@ fun CenterPlayerControls(
             verticalAlignment = Alignment.CenterVertically,
         ) {
             // Brightness Slider
-            if (isInFullPlayerMode) {
+            if (isInFullPlayerMode && playerControlsConfiguration.isBrightnessSliderEnabled) {
                 Column {
                     IconButton(onClick = { }) {
                         Image(
@@ -115,7 +113,7 @@ fun CenterPlayerControls(
                     Modifier
                         .align(Alignment.CenterEnd)
                 ) {
-                    DoubleTapToForwardIcon(isForward = false){
+                    DoubleTapToForwardIcon(isForward = false, forwardIntervalTime = playerControlsConfiguration.forwardClickIntervalTime){
                         onReplayClick()
                     }
                 }
@@ -133,13 +131,12 @@ fun CenterPlayerControls(
 
             // pause/play toggle button
             IconButton(modifier = Modifier.size(40.dp), onClick = {
-                isPlayingValue = !isPlayingValue
-                onPlayPauseToggle(isPlayingValue)
+                onPlayPauseToggle(isPlaying)
             }) {
                 Image(
                     modifier = Modifier.fillMaxSize(),
                     contentScale = ContentScale.Crop,
-                    painter = if (isPlayingValue) {
+                    painter = if (isPlaying) {
                         painterResource(id = R.drawable.ic_play_triangle)
                     } else {
                         painterResource(id = R.drawable.ic_pause)
@@ -170,7 +167,7 @@ fun CenterPlayerControls(
             }*/
 
             // Volume Slider
-            if (isInFullPlayerMode) {
+            if (isInFullPlayerMode && playerControlsConfiguration.isVolumeSliderEnabled ) {
                 Column {
                     IconButton(onClick = { }) {
                         Image(
@@ -249,33 +246,6 @@ fun CenterPlayerControls(
         }*/
     }
 }
-
-/*@Composable
-fun PlayerControlsFillPlayerPreview() {
-    CenterPlayerControls(
-        brightnessLevel = 50f,
-        volumeLevel = 0f,
-        playerMode = PlayerModes.FULL_PLAYER,
-        currentDuration = 100000,
-        totalDuration = 500000
-    )
-}
-
-@Composable
-fun PlayerControlsPreview() {
-    Column(modifier = Modifier.fillMaxHeight()) {
-        CenterPlayerControls(
-            modifier = Modifier
-                .fillMaxWidth()
-                .aspectRatio(16f / 9f),
-            brightnessLevel = 50f,
-            volumeLevel = 0f,
-            playerMode = PlayerModes.MINI_PLAYER,
-            currentDuration = 100000,
-            totalDuration = 500000,
-        )
-    }
-}*/
 
 fun Player.remainingTimeFlow(
     updateFrequency: Duration = 1.seconds,

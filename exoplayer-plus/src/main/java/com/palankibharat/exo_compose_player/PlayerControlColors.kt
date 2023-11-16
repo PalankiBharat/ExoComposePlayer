@@ -31,21 +31,22 @@ data class PlayerControlsStyle(
  *
  * @param shouldShowCenterControls is the color of the center controls such as play pause, forward and backward icons
  * @param shouldShowSeekbar is the color of the seekbar
- * @param forwardClickTime is the time (in Milliseconds) the video will skip on click of forward button
- * @param replayClickTime is the time (in Milliseconds) the video will skip on click of backward button
+ * @param forwardClickIntervalTime is the time (in Milliseconds) the video will skip on click of forward button
+ * @param replayClickIntervalTime is the time (in Milliseconds) the video will skip on click of backward button
  * @param isDoubleTapToForwardBackwardEnabled is if the double tap upon the player should work or not (time will be same as the forwardClickTime and replayClickTime )
  * @param isBrightnessSliderEnabled is if to enable the brightness control slider (present at the right side)
  * @param isVolumeSliderEnabled is if to enable the volume control slider (present at the left side)
  */
 
 data class PlayerControlsConfiguration(
-    val shouldShowCenterControls:Boolean ,
-    val shouldShowSeekbar:Boolean ,
-    val forwardClickTime:Long ,
-    val replayClickTime:Long ,
+    val shouldShowCenterControls:Boolean,
+    val shouldShowSeekbar:Boolean,
+    val forwardClickIntervalTime:Long,
+    val replayClickIntervalTime:Long,
     val isDoubleTapToForwardBackwardEnabled :Boolean,
     val isBrightnessSliderEnabled :Boolean,
     val isVolumeSliderEnabled :Boolean,
+    val isFullScreenEnabled :Boolean,
 )
 
 object PlayerDefaults{
@@ -60,12 +61,12 @@ object PlayerDefaults{
     val defaultPlayerControlsConfiguration = PlayerControlsConfiguration(
         shouldShowCenterControls = true,
         shouldShowSeekbar = true,
-        forwardClickTime = 10.seconds.inWholeMilliseconds,
-        replayClickTime = 10.seconds.inWholeMilliseconds,
+        forwardClickIntervalTime = 10.seconds.inWholeMilliseconds,
+        replayClickIntervalTime = 10.seconds.inWholeMilliseconds,
         isDoubleTapToForwardBackwardEnabled = true,
         isBrightnessSliderEnabled = true,
-        isVolumeSliderEnabled = true
-
+        isVolumeSliderEnabled = true,
+        isFullScreenEnabled = true
     )
 
 }

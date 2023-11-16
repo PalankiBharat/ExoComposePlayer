@@ -33,7 +33,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 
 @Composable
-fun DoubleTapToForwardIcon(isForward: Boolean = true, onClick: () -> Unit = {}) {
+fun DoubleTapToForwardIcon(isForward: Boolean = true,forwardIntervalTime:Long = 10, replayIntervalTime:Long= 10, onClick: () -> Unit = {}) {
     val rotation by remember {
         mutableStateOf(Animatable(0f))
     }
@@ -96,8 +96,7 @@ fun DoubleTapToForwardIcon(isForward: Boolean = true, onClick: () -> Unit = {}) 
 
     Box(
         modifier = Modifier.fillMaxWidth().clickable(interactionSource = MutableInteractionSource(), indication = null) {
-            animationRunning = true
-            onClick()
+
         },
     ) {
         // Icon Box
@@ -129,7 +128,11 @@ fun DoubleTapToForwardIcon(isForward: Boolean = true, onClick: () -> Unit = {}) 
                     }
                     .rotate(-60f)
                     .rotate(rotation.value)
-                    .align(Alignment.Center),
+                    .align(Alignment.Center)
+                    .clickable {
+                        animationRunning = true
+                        onClick()
+                    },
                 contentDescription = "",
                 tint = Color.White,
                 painter = painterResource(id = R.drawable.forward_only),
@@ -171,7 +174,7 @@ fun DoubleTapToForwardIcon(isForward: Boolean = true, onClick: () -> Unit = {}) 
                         },
                 ) {
                     Text(
-                        text = if (isForward) "++10" else "--10",
+                        text = if (isForward) "++$forwardIntervalTime" else "--$replayIntervalTime",
                         color = Color.White,
                         modifier = Modifier.fillMaxWidth().run {
                             if (isForward) {
