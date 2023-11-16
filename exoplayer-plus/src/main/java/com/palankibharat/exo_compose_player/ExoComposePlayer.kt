@@ -17,6 +17,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.material3.Button
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
@@ -42,8 +43,12 @@ import kotlinx.coroutines.delay
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun ExoComposePlayer(
-    modifier: Modifier = Modifier.fillMaxWidth().aspectRatio(16f / 9f),
-    mediaUrl: String = "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4",
+    modifier: Modifier = Modifier
+        .fillMaxWidth()
+        .aspectRatio(16f / 9f),
+    mediaUrl: String = "",
+    playerControlsStyle: PlayerControlsStyle = PlayerDefaults.defaultPlayerControls,
+    playerControlsConfiguration: PlayerControlsConfiguration = PlayerDefaults.defaultPlayerControls,
     //exoplayerBuilder: ExoPlayer.Builder? = null,
     onFullScreenClick: () -> Unit = {},
     //getExoplayer: (ExoPlayer) -> Unit = {},
@@ -151,6 +156,9 @@ fun ExoComposePlayer(
                 enter = fadeIn(),
                 exit = fadeOut(),
             ) {
+                Button(onClick = { /*TODO*/ }) {
+                    
+                }
                 CenterPlayerControls(
                     modifier = Modifier.fillMaxSize(),
                     onReplayClick = { exoPlayer.seekTo(exoPlayer.currentPosition - 15000) },

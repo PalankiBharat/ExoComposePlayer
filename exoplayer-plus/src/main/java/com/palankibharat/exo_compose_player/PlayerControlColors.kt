@@ -3,6 +3,7 @@ package com.palankibharat.exo_compose_player
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import kotlin.time.Duration.Companion.seconds
 
 /**
  * <a href="" class="external" target="_blank">Player Controls Style</a>.
@@ -16,11 +17,57 @@ import androidx.compose.ui.unit.dp
  * @param remainingTimeColor is the color of the remaining time of the video value (Value in the right side of the seekbar)
  */
 data class PlayerControlsStyle(
-    val centerControlColors:Color = Color.White,
-    val seekbarColor:Color = Color.White,
-    val runtimeColor:Color = Color.White,
-    val remainingTimeColor:Color = Color.White,
-    val seekbarThickness:Dp= 3.dp
+    val centerControlColors:Color ,
+    val seekbarColor:Color ,
+    val runtimeColor:Color ,
+    val remainingTimeColor:Color,
+    val seekbarThickness:Dp
 )
+
+/**
+ * <a href="" class="external" target="_blank">Player Control Colors</a>.
+ *
+ * PlayerControlColors will help you customize the color of your player controls
+ *
+ * @param shouldShowCenterControls is the color of the center controls such as play pause, forward and backward icons
+ * @param shouldShowSeekbar is the color of the seekbar
+ * @param forwardClickTime is the time (in Milliseconds) the video will skip on click of forward button
+ * @param replayClickTime is the time (in Milliseconds) the video will skip on click of backward button
+ * @param isDoubleTapToForwardBackwardEnabled is if the double tap upon the player should work or not (time will be same as the forwardClickTime and replayClickTime )
+ * @param isBrightnessSliderEnabled is if to enable the brightness control slider (present at the right side)
+ * @param isVolumeSliderEnabled is if to enable the volume control slider (present at the left side)
+ */
+
+data class PlayerControlsConfiguration(
+    val shouldShowCenterControls:Boolean ,
+    val shouldShowSeekbar:Boolean ,
+    val forwardClickTime:Long ,
+    val replayClickTime:Long ,
+    val isDoubleTapToForwardBackwardEnabled :Boolean,
+    val isBrightnessSliderEnabled :Boolean,
+    val isVolumeSliderEnabled :Boolean,
+)
+
+object PlayerDefaults{
+    val defaultPlayerControls = PlayerControlsStyle(
+        centerControlColors = Color.White,
+        seekbarColor =Color.White,
+        runtimeColor =Color.White,
+        remainingTimeColor =Color.White,
+        seekbarThickness =3.dp
+    )
+
+    val defaultPlayerControlsConfiguration = PlayerControlsConfiguration(
+        shouldShowCenterControls = true,
+        shouldShowSeekbar = true,
+        forwardClickTime = 10.seconds.inWholeMilliseconds,
+        replayClickTime = 10.seconds.inWholeMilliseconds,
+        isDoubleTapToForwardBackwardEnabled = true,
+        isBrightnessSliderEnabled = true,
+        isVolumeSliderEnabled = true
+
+    )
+
+}
 
 
