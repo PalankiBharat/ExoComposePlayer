@@ -62,7 +62,7 @@ publishing {
         register<MavenPublication>("release") {
             groupId = "com.github.PalankiBharat"
             artifactId = "ExoComposePlayer"
-            version = "0.1.8"
+            version = "0.1.9"
 
             afterEvaluate {
                 from(components["release"])

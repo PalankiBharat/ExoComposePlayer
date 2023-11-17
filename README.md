@@ -1,4 +1,3 @@
-
 # ExoComposePlayer - Simple Player Built upon Exoplayer 
 # :construction: Under Development :construction:
 
@@ -9,10 +8,10 @@ ExoComposePlayer is an Android library built upon ExoPlayer, designed to simplif
 
 ## Features
 
-- Easy Integration: Add a fully-functional video player to your Compose app with just a URL, simplifying the process of incorporating video playback.
-- Custom Player Controls: Tailor the user interface to match your app's design by taking advantage of customizable player controls provided by ComposePlayerLib.
+- Easy Integration: Add a fully functional video player to your Compose app with just a URL, simplifying the process of incorporating video playback.
+- Custom Player Controls: Tailor the user interface to match your app's design by using customizable player controls provided by ComposePlayerLib.
 - Built for Jetpack Compose: ComposePlayerLib is specifically designed for Jetpack Compose, making it easy to integrate with your existing Compose-based UI.
-- Picture-in-Picture (PiP) Support: Enable Picture-in-Picture mode for a seamless, multitasking video playback experience, allowing users to continue watching content while navigating through your app.
+- Picture-in-Picture (PiP) Support: Enable Picture-in-Picture mode for a seamless, multitasking video playback experience, allowing users to continue watching content while navigating your app.
 
 
 ## Usage
@@ -33,7 +32,7 @@ Add usesCleartextTraffic as true in manifest
 
 Add usesCleartextTraffic as true in manifest
 ```kotlin
-CustomExoplayer(
+ExoComposePlayer(
     modifier = Modifier.fillMaxWidth().aspectRatio(16f/9f),
     mediaUrl = "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4"
 )
@@ -42,7 +41,7 @@ CustomExoplayer(
 To Use PIP mode in your App 
 Add the following code to your activity with the Player
 ```kotlin
-PiPActivity(this).initPip()
+PipInitializer(this).initialize()
 ```
 
 Add this code to the particular activity manifest
@@ -77,7 +76,7 @@ Groovy
 ``` 
 dependencies { 
   ...
-  implementation 'com.github.PalankiBharat:ExoPlayerPlus:0.1.7'
+  implementation 'com.github.PalankiBharat:ExoPlayerPlus:0.1.9'
 }
 ```
 
@@ -85,7 +84,7 @@ Kotlin
 ``` 
 dependencies { 
   ...
-  implementation ("com.github.PalankiBharat:ExoPlayerPlus:0.1.7")
+  implementation ("com.github.PalankiBharat:ExoPlayerPlus:0.1.9")
 }
 ```
     
