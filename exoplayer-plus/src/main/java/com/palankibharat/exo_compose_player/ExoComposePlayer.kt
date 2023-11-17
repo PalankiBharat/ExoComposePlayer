@@ -35,15 +35,21 @@ import androidx.media3.common.C
 import androidx.media3.common.MediaItem
 import androidx.media3.common.MimeTypes
 import androidx.media3.common.Player
+import androidx.media3.datasource.RawResourceDataSource
 import androidx.media3.exoplayer.ExoPlayer
 import androidx.media3.ui.PlayerView
 import kotlinx.coroutines.delay
 
 @OptIn(ExperimentalFoundationApi::class)
+@androidx.annotation.OptIn(androidx.media3.common.util.UnstableApi::class)
 @Composable
 fun ExoComposePlayer(
-    modifier: Modifier = Modifier.fillMaxWidth().aspectRatio(16f / 9f),
-    mediaUrl: String = "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4",
+    modifier: Modifier = Modifier
+        .fillMaxWidth()
+        .aspectRatio(16f / 9f),
+    mediaUrl: String = "",
+    playerControllerStyle: PlayerControlsStyle = PlayerDefaults.defaultPlayerControls,
+    playerControlsConfiguration: PlayerControlsConfiguration = PlayerDefaults.defaultPlayerControlsConfiguration,
     //exoplayerBuilder: ExoPlayer.Builder? = null,
     onFullScreenClick: () -> Unit = {},
     //getExoplayer: (ExoPlayer) -> Unit = {},
@@ -71,20 +77,33 @@ fun ExoComposePlayer(
         mutableFloatStateOf(context.getCurrentBrightness())
     }
 
+    LaunchedEffect(key1 = brightnessLevel) {
+        //changing brightness level
+      //  PlayerUtils().setWindowBrightness(activity, brightnessLevel.toInt())
+    }
+
     var videPlaybackPosition by remember {
         mutableFloatStateOf(0f)
     }
 
+    var isPlayingValue by remember {
+        mutableStateOf(false)
+    }
+
     val exoPlayer = remember {
-        val subtitle = MediaItem.SubtitleConfiguration.Builder(Uri.parse(""))
+        val subtitle = MediaItem.SubtitleConfiguration.Builder(Uri.parse("https://drive.google.com/uc?export=download&id=1n3VLrbMmEDNvJX48KWxWn8534t_sVPD-"))
             .setMimeType(MimeTypes.APPLICATION_SUBRIP)
             .setLanguage("en")
             .setSelectionFlags(C.SELECTION_FLAG_DEFAULT)
             .build()
-       // exoplayerBuilder?.build() ?:
+        // exoplayerBuilder?.build() ?:
         ExoPlayer.Builder(context).build().apply {
             setMediaItem(
-                MediaItem.fromUri(mediaUrl),
+               // MediaItem.fromUri(mediaUrl),
+
+                MediaItem.Builder().setUri(RawResourceDataSource.buildRawResourceUri(R.raw.vid)).setSubtitleConfigurations(listOf(subtitle))
+                    //.setMimeType(Util.getAdaptiveMimeTypeForContentType(Util.inferContentType(Uri.parse(mediaUrl))))
+                    .build()
             )
             prepare()
             addListener(object : Player.Listener {
@@ -96,7 +115,7 @@ fun ExoComposePlayer(
         }
     }
     LaunchedEffect(key1 = exoPlayer) {
-       // getExoplayer(exoPlayer)
+        // getExoplayer(exoPlayer)
     }
 
     val currentExoplayerPosition = exoPlayer.currentPositionFlow().collectAsState(initial = 0L)
@@ -113,12 +132,14 @@ fun ExoComposePlayer(
                     detectTapGestures(onTap = {
                         areControlsVisible = !areControlsVisible
                     }, onDoubleTap = {
-                        if (it.x > width / 2) {
-                            Log.d("TAG", "CustomExoplayer: Double tap on right")
-                            exoPlayer.seekTo(exoPlayer.currentPosition + 10000)
-                        } else {
-                            Log.d("TAG", "CustomExoplayer: Double tap on left")
-                            exoPlayer.seekTo(exoPlayer.currentPosition - 10000)
+                        if (playerControlsConfiguration.isDoubleTapToForwardBackwardEnabled) {
+                            if (it.x > width / 2) {
+                                Log.d("TAG", "CustomExoplayer: Double tap on right")
+                                exoPlayer.seekForward(playerControlsConfiguration.forwardClickIntervalTime)
+                            } else {
+                                Log.d("TAG", "CustomExoplayer: Double tap on left")
+                                exoPlayer.seekBackward(playerControlsConfiguration.replayClickIntervalTime)
+                            }
                         }
                     })
                 },
@@ -142,6 +163,7 @@ fun ExoComposePlayer(
                         ViewGroup.LayoutParams.MATCH_PARENT,
                         ViewGroup.LayoutParams.MATCH_PARENT,
                     )
+                   // subtitleView?.visibility = View.VISIBLE
                 }
             },
         )
@@ -153,16 +175,17 @@ fun ExoComposePlayer(
             ) {
                 CenterPlayerControls(
                     modifier = Modifier.fillMaxSize(),
-                    onReplayClick = { exoPlayer.seekTo(exoPlayer.currentPosition - 15000) },
-                    onPlayPauseToggle = { isPlaying ->
-                        if (isPlaying) {
+                    onReplayClick = { exoPlayer.seekBackward(playerControlsConfiguration.replayClickIntervalTime) },
+                    onPlayPauseToggle = { _ ->
+                        isPlayingValue = !isPlayingValue
+                        if (isPlayingValue) {
                             exoPlayer.pause()
                         } else {
                             exoPlayer.play()
                         }
                     },
                     onForwardClick = {
-                        exoPlayer.seekTo(exoPlayer.currentPosition + 15000)
+                        exoPlayer.seekForward(playerControlsConfiguration.forwardClickIntervalTime)
                     },
                     onBrightnessChange = {
                         brightnessLevel = it
@@ -176,13 +199,16 @@ fun ExoComposePlayer(
                     currentDuration = currentExoplayerPosition.value,
                     totalDuration = totalDuration,
                     playerMode = playerMode,
-
+                    playerControlsConfiguration = playerControlsConfiguration,
+                    playerControlsStyle = playerControllerStyle,
+                    isPlaying = isPlayingValue
                     // seekbarPosition = videPlaybackPosition
                 )
             }
         }
     }
 }
+
 
 enum class PlayerModes {
     FULL_PLAYER, MINI_PLAYER

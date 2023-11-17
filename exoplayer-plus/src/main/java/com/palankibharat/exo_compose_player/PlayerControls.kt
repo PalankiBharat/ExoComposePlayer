@@ -25,7 +25,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -44,6 +43,7 @@ import kotlinx.coroutines.flow.flowOn
 import java.util.concurrent.TimeUnit
 import kotlin.math.abs
 import kotlin.time.Duration
+import kotlin.time.Duration.Companion.milliseconds
 import kotlin.time.Duration.Companion.seconds
 import kotlin.time.DurationUnit
 import kotlin.time.toDuration
@@ -51,6 +51,8 @@ import kotlin.time.toDuration
 @Composable
 fun CenterPlayerControls(
     modifier: Modifier = Modifier,
+    playerControlsStyle: PlayerControlsStyle = PlayerDefaults.defaultPlayerControls,
+    playerControlsConfiguration: PlayerControlsConfiguration = PlayerDefaults.defaultPlayerControlsConfiguration,
     onReplayClick: () -> Unit = {},
     onPlayPauseToggle: (isPlaying: Boolean) -> Unit = {},
     onForwardClick: () -> Unit = {},
@@ -63,12 +65,9 @@ fun CenterPlayerControls(
     onVolumeChange: (value: Float) -> Unit = {},
     volumeLevel: Float,
     playerMode: PlayerModes,
+    isPlaying: Boolean,
 ) {
     val context = LocalContext.current
-
-    var isPlayingValue by remember {
-        mutableStateOf(false)
-    }
 
     var videoPlaybackPosition by remember {
         mutableFloatStateOf(seekbarPosition)
@@ -91,7 +90,7 @@ fun CenterPlayerControls(
             verticalAlignment = Alignment.CenterVertically,
         ) {
             // Brightness Slider
-            if (isInFullPlayerMode) {
+            if (isInFullPlayerMode && playerControlsConfiguration.isBrightnessSliderEnabled) {
                 Column {
                     IconButton(onClick = { }) {
                         Image(
@@ -110,36 +109,42 @@ fun CenterPlayerControls(
             }
 
             // replay button
-            Box(modifier = Modifier.height(48.dp).weight(1f)) {
+            Box(
+                modifier = Modifier
+                    .height(48.dp)
+                    .weight(1f)
+            ) {
                 Box(
                     Modifier
                         .align(Alignment.CenterEnd)
                 ) {
-                    DoubleTapToForwardIcon(isForward = false){
+                    DoubleTapToForwardIcon(
+                        isForward = false,
+                        forwardIntervalTime = playerControlsConfiguration.forwardClickIntervalTime
+                    ) {
                         onReplayClick()
                     }
                 }
             }
-           /* IconButton(modifier = Modifier.size(40.dp), onClick = {
-                onReplayClick()
-            }) {
-                Image(
-                    modifier = Modifier.fillMaxSize(),
-                    contentScale = ContentScale.Crop,
-                    painter = painterResource(id = R.drawable.ic_exo_icon_rewind),
-                    contentDescription = "Replay 15 seconds",
-                )
-            }*/
+            /* IconButton(modifier = Modifier.size(40.dp), onClick = {
+                 onReplayClick()
+             }) {
+                 Image(
+                     modifier = Modifier.fillMaxSize(),
+                     contentScale = ContentScale.Crop,
+                     painter = painterResource(id = R.drawable.ic_exo_icon_rewind),
+                     contentDescription = "Replay 15 seconds",
+                 )
+             }*/
 
             // pause/play toggle button
             IconButton(modifier = Modifier.size(40.dp), onClick = {
-                isPlayingValue = !isPlayingValue
-                onPlayPauseToggle(isPlayingValue)
+                onPlayPauseToggle(isPlaying)
             }) {
                 Image(
                     modifier = Modifier.fillMaxSize(),
                     contentScale = ContentScale.Crop,
-                    painter = if (isPlayingValue) {
+                    painter = if (isPlaying) {
                         painterResource(id = R.drawable.ic_play_triangle)
                     } else {
                         painterResource(id = R.drawable.ic_pause)
@@ -150,27 +155,31 @@ fun CenterPlayerControls(
 
             // forward button
 
-            Box(modifier = Modifier.height(48.dp).weight(1f)) {
-                Box(modifier = Modifier.fillMaxWidth()){
-                    DoubleTapToForwardIcon(isForward = true){
+            Box(
+                modifier = Modifier
+                    .height(48.dp)
+                    .weight(1f)
+            ) {
+                Box(modifier = Modifier.fillMaxWidth()) {
+                    DoubleTapToForwardIcon(isForward = true) {
                         onForwardClick()
                     }
                 }
             }
 
-           /* IconButton(modifier = Modifier.size(40.dp), onClick = {
-                onForwardClick()
-            }) {
-                Image(
-                    modifier = Modifier.fillMaxSize(),
-                    contentScale = ContentScale.Crop,
-                    painter = painterResource(id = R.drawable.ic_exo_icon_fastforward),
-                    contentDescription = "Forward 10 seconds",
-                )
-            }*/
+            /* IconButton(modifier = Modifier.size(40.dp), onClick = {
+                 onForwardClick()
+             }) {
+                 Image(
+                     modifier = Modifier.fillMaxSize(),
+                     contentScale = ContentScale.Crop,
+                     painter = painterResource(id = R.drawable.ic_exo_icon_fastforward),
+                     contentDescription = "Forward 10 seconds",
+                 )
+             }*/
 
             // Volume Slider
-            if (isInFullPlayerMode) {
+            if (isInFullPlayerMode && playerControlsConfiguration.isVolumeSliderEnabled) {
                 Column {
                     IconButton(onClick = { }) {
                         Image(
@@ -250,33 +259,6 @@ fun CenterPlayerControls(
     }
 }
 
-/*@Composable
-fun PlayerControlsFillPlayerPreview() {
-    CenterPlayerControls(
-        brightnessLevel = 50f,
-        volumeLevel = 0f,
-        playerMode = PlayerModes.FULL_PLAYER,
-        currentDuration = 100000,
-        totalDuration = 500000
-    )
-}
-
-@Composable
-fun PlayerControlsPreview() {
-    Column(modifier = Modifier.fillMaxHeight()) {
-        CenterPlayerControls(
-            modifier = Modifier
-                .fillMaxWidth()
-                .aspectRatio(16f / 9f),
-            brightnessLevel = 50f,
-            volumeLevel = 0f,
-            playerMode = PlayerModes.MINI_PLAYER,
-            currentDuration = 100000,
-            totalDuration = 500000,
-        )
-    }
-}*/
-
 fun Player.remainingTimeFlow(
     updateFrequency: Duration = 1.seconds,
 ) = flow {
@@ -287,26 +269,26 @@ fun Player.remainingTimeFlow(
 }.flowOn(Dispatchers.Main)
 
 fun Player.currentPositionFlow(
-    updateFrequency: Duration = 1.seconds,
+    updateFrequency: Duration = 300.milliseconds,
 ) = flow {
     while (true) {
         if (isPlaying) emit(currentPosition)
         delay(updateFrequency)
     }
-}.flowOn(Dispatchers.Main)
+}.flowOn(Dispatchers.IO)
 
 fun Long.formatMinSec(): String {
-    return if (this == 0L) {
+    return if (this <= 0L) {
         "..."
     } else {
-        String.format(
-            "%02d:%02d",
-            TimeUnit.MILLISECONDS.toMinutes(this),
-            TimeUnit.MILLISECONDS.toSeconds(this) -
-                    TimeUnit.MINUTES.toSeconds(
-                        TimeUnit.MILLISECONDS.toMinutes(this),
-                    ),
-        )
+        val hours = this / (1000 * 60 * 60)
+        val minutes = (this % (1000 * 60 * 60)) / (1000 * 60)
+        val seconds = (this % (1000 * 60)) / 1000
+        when {
+            hours > 0 -> String.format("%02d:%02d:%02d", hours, minutes, seconds)
+            minutes > 0 -> String.format("%02d:%02d", minutes, seconds)
+            else -> String.format("00:%02d", seconds)
+        }
     }
 }
 
