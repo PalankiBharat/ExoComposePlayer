@@ -50,20 +50,12 @@ class MainActivity : ComponentActivity() {
                                 .aspectRatio(16f / 9f),
                             mediaUrl = "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4",
                         )
-                        Box(modifier = Modifier.height(100.dp).width(100.dp).padding(5.dp)
+                        Box(modifier = Modifier.height(150.dp).width(150.dp).padding(5.dp)
                            // onPlayPauseToggle(isPlaying)
                         ) {
-                            ComposePlayPauseButton(modifier = Modifier.fillMaxSize(), iconColor = Color.White, isPlaying = false)
-                            /*  Image(
-                                  modifier = Modifier.fillMaxSize(),
-                                  contentScale = ContentScale.Crop,
-                                  painter = if (isPlaying) {
-                                      painterResource(id = R.drawable.ic_play_triangle)
-                                  } else {
-                                      painterResource(id = R.drawable.ic_pause)
-                                  },
-                                  contentDescription = "Play/Pause",
-                              )*/
+                            ComposePlayPauseButton(modifier = Modifier.fillMaxSize(), iconColor = Color.Black, isVideoPlaying = false){
+
+                            }
                         }
 
 

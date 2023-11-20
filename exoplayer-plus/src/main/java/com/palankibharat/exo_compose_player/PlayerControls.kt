@@ -57,7 +57,7 @@ fun CenterPlayerControls(
     playerControlsStyle: PlayerControlsStyle = PlayerDefaults.defaultPlayerControls,
     playerControlsConfiguration: PlayerControlsConfiguration = PlayerDefaults.defaultPlayerControlsConfiguration,
     onReplayClick: () -> Unit = {},
-    onPlayPauseToggle: (isPlaying: Boolean) -> Unit = {},
+    onPlayPauseToggle: () -> Unit = {},
     onForwardClick: () -> Unit = {},
     currentDuration: Long = 0L,
     totalDuration: Long = 0L,
@@ -143,9 +143,11 @@ fun CenterPlayerControls(
 
             // pause/play toggle button
             Box(modifier = Modifier.padding(horizontal = 10.dp).size(30.dp).clickable(interactionSource = MutableInteractionSource(),indication = null) {
-                onPlayPauseToggle(isPlaying)
+               // onPlayPauseToggle(isPlaying)
             }) {
-                ComposePlayPauseButton(modifier = Modifier.fillMaxSize(), iconColor = playerControlsStyle.centerControlColors, isPlaying = isPlaying)
+                ComposePlayPauseButton(modifier = Modifier.fillMaxSize(), iconColor = playerControlsStyle.centerControlColors, isVideoPlaying = isPlaying){
+                    onPlayPauseToggle()
+                }
             }
 
             // forward button

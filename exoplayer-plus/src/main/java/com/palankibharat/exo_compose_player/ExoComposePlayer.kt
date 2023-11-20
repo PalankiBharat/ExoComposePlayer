@@ -161,7 +161,7 @@ fun ExoComposePlayer(
                 CenterPlayerControls(
                     modifier = Modifier.fillMaxSize(),
                     onReplayClick = { exoPlayer.seekBackward(playerControlsConfiguration.replayClickIntervalTime) },
-                    onPlayPauseToggle = { _ ->
+                    onPlayPauseToggle = {
                         isPlayingValue = !isPlayingValue
                         if (isPlayingValue) {
                             exoPlayer.pause()
