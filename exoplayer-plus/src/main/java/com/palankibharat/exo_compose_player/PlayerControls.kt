@@ -8,6 +8,8 @@ import android.view.WindowManager
 import androidx.annotation.FloatRange
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -18,6 +20,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Slider
 import androidx.compose.material3.Text
@@ -64,7 +67,7 @@ fun CenterPlayerControls(
     brightnessLevel: Float,
     onVolumeChange: (value: Float) -> Unit = {},
     volumeLevel: Float,
-    playerMode: PlayerModes,
+    playerMode: PlayerModes = PlayerModes.FULL_PLAYER,
     isPlaying: Boolean,
 ) {
     val context = LocalContext.current
@@ -93,16 +96,17 @@ fun CenterPlayerControls(
             if (isInFullPlayerMode && playerControlsConfiguration.isBrightnessSliderEnabled) {
                 Column {
                     IconButton(onClick = { }) {
-                        Image(
+                        Icon(
                             painter = painterResource(id = R.drawable.ic_brightness_medium),
                             contentDescription = "Brightness Level",
+                            tint = playerControlsStyle.centerControlColors
                         )
                     }
                     HSlider(
                         modifier = Modifier.fillMaxHeight(0.7f),
                         defaultValue = brightnessLevel,
                         onValueChange = {
-                            context.changeBrightnessLevel(percent = it)
+                            Log.d("TAG", "CenterPlayerControls: Brightness Level $brightnessLevel")
                             onBrightnessChange(it)
                         })
                 }
@@ -138,19 +142,10 @@ fun CenterPlayerControls(
              }*/
 
             // pause/play toggle button
-            IconButton(modifier = Modifier.size(40.dp), onClick = {
+            Box(modifier = Modifier.padding(horizontal = 10.dp).size(30.dp).clickable(interactionSource = MutableInteractionSource(),indication = null) {
                 onPlayPauseToggle(isPlaying)
             }) {
-                Image(
-                    modifier = Modifier.fillMaxSize(),
-                    contentScale = ContentScale.Crop,
-                    painter = if (isPlaying) {
-                        painterResource(id = R.drawable.ic_play_triangle)
-                    } else {
-                        painterResource(id = R.drawable.ic_pause)
-                    },
-                    contentDescription = "Play/Pause",
-                )
+                ComposePlayPauseButton(modifier = Modifier.fillMaxSize(), iconColor = playerControlsStyle.centerControlColors, isPlaying = isPlaying)
             }
 
             // forward button
@@ -259,55 +254,3 @@ fun CenterPlayerControls(
     }
 }
 
-fun Player.remainingTimeFlow(
-    updateFrequency: Duration = 1.seconds,
-) = flow {
-    while (true) {
-        if (isPlaying) emit(abs(duration - currentPosition).toDuration(DurationUnit.MILLISECONDS))
-        delay(updateFrequency)
-    }
-}.flowOn(Dispatchers.Main)
-
-fun Player.currentPositionFlow(
-    updateFrequency: Duration = 300.milliseconds,
-) = flow {
-    while (true) {
-        if (isPlaying) emit(currentPosition)
-        delay(updateFrequency)
-    }
-}.flowOn(Dispatchers.IO)
-
-fun Long.formatMinSec(): String {
-    return if (this <= 0L) {
-        "..."
-    } else {
-        val hours = this / (1000 * 60 * 60)
-        val minutes = (this % (1000 * 60 * 60)) / (1000 * 60)
-        val seconds = (this % (1000 * 60)) / 1000
-        when {
-            hours > 0 -> String.format("%02d:%02d:%02d", hours, minutes, seconds)
-            minutes > 0 -> String.format("%02d:%02d", minutes, seconds)
-            else -> String.format("00:%02d", seconds)
-        }
-    }
-}
-
-fun Context.changeBrightnessLevel(@FloatRange(0.0, 1.0) percent: Float) {
-    val activity = this as Activity
-    val layout: WindowManager.LayoutParams? = activity.window?.attributes
-    layout?.screenBrightness = percent
-    activity.window?.attributes = layout
-}
-
-fun Context.getCurrentBrightness(): Float {
-    var curBrightness =
-        Settings.System.getFloat(this.contentResolver, Settings.System.SCREEN_BRIGHTNESS)
-    Log.d("TAG", "getCurrentBrightness: $curBrightness")
-    curBrightness /= 100f
-    if (curBrightness > 1) {
-        curBrightness = 1f
-    } else if (curBrightness < 0) {
-        curBrightness = 0f
-    }
-    return curBrightness
-}

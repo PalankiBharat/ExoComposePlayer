@@ -40,7 +40,6 @@ import androidx.media3.exoplayer.ExoPlayer
 import androidx.media3.ui.PlayerView
 import kotlinx.coroutines.delay
 
-@OptIn(ExperimentalFoundationApi::class)
 @androidx.annotation.OptIn(androidx.media3.common.util.UnstableApi::class)
 @Composable
 fun ExoComposePlayer(
@@ -53,7 +52,7 @@ fun ExoComposePlayer(
     //exoplayerBuilder: ExoPlayer.Builder? = null,
     onFullScreenClick: () -> Unit = {},
     //getExoplayer: (ExoPlayer) -> Unit = {},
-    playerModes: PlayerModes = PlayerModes.MINI_PLAYER,
+    playerModes: PlayerModes = PlayerModes.FULL_PLAYER,
 ) {
     val context = LocalContext.current
     val activity = context as Activity
@@ -79,7 +78,7 @@ fun ExoComposePlayer(
 
     LaunchedEffect(key1 = brightnessLevel) {
         //changing brightness level
-      //  PlayerUtils().setWindowBrightness(activity, brightnessLevel.toInt())
+        PlayerUtils().setWindowBrightness(activity, brightnessLevel.toInt()*225)
     }
 
     var videPlaybackPosition by remember {
@@ -96,13 +95,10 @@ fun ExoComposePlayer(
             .setLanguage("en")
             .setSelectionFlags(C.SELECTION_FLAG_DEFAULT)
             .build()
-        // exoplayerBuilder?.build() ?:
         ExoPlayer.Builder(context).build().apply {
             setMediaItem(
-               // MediaItem.fromUri(mediaUrl),
-
+               // MediaItem.fromUri(mediaUrl)
                 MediaItem.Builder().setUri(RawResourceDataSource.buildRawResourceUri(R.raw.vid)).setSubtitleConfigurations(listOf(subtitle))
-                    //.setMimeType(Util.getAdaptiveMimeTypeForContentType(Util.inferContentType(Uri.parse(mediaUrl))))
                     .build()
             )
             prepare()
@@ -114,16 +110,15 @@ fun ExoComposePlayer(
             playWhenReady = true
         }
     }
-    LaunchedEffect(key1 = exoPlayer) {
-        // getExoplayer(exoPlayer)
-    }
 
     val currentExoplayerPosition = exoPlayer.currentPositionFlow().collectAsState(initial = 0L)
-
     Box(
         modifier = modifier,
     ) {
-        DisposableEffect(key1 = Unit) { onDispose { exoPlayer.release() } }
+        DisposableEffect(key1 = Unit) { onDispose {
+            exoPlayer.release()
+            exoPlayer.stop()
+        } }
         Canvas(
             modifier = Modifier
                 .fillMaxSize()
@@ -146,15 +141,6 @@ fun ExoComposePlayer(
         ) {
         }
         AndroidView(
-            modifier = Modifier.combinedClickable(
-                onClick = {
-                    areControlsVisible = !areControlsVisible
-                },
-                onLongClick = {
-                },
-                onDoubleClick = {
-                },
-            ),
             factory = {
                 PlayerView(context).apply {
                     player = exoPlayer
@@ -163,7 +149,6 @@ fun ExoComposePlayer(
                         ViewGroup.LayoutParams.MATCH_PARENT,
                         ViewGroup.LayoutParams.MATCH_PARENT,
                     )
-                   // subtitleView?.visibility = View.VISIBLE
                 }
             },
         )
