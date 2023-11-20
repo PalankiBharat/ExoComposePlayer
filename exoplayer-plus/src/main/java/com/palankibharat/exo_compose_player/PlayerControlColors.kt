@@ -11,15 +11,16 @@ import kotlin.time.Duration.Companion.seconds
  * PlayerControlColors will help you customize the color of your player controls
  *
  * @param centerControlColors is the color of the center controls such as play pause, forward and backward icons
- * @param seekbarColor is the color of the seekbar
+ * @param seekbarActiveColor is the color of the seekbar
  * @param seekbarThickness is the thickness of the seekbar
  * @param runtimeColor is the color of the runtime value (Value in the left side of the seekbar)
  * @param remainingTimeColor is the color of the remaining time of the video value (Value in the right side of the seekbar)
  */
 data class PlayerControlsStyle(
-    val centerControlColors:Color ,
-    val seekbarColor:Color ,
-    val runtimeColor:Color ,
+    val centerControlColors:Color,
+    val seekbarActiveColor:Color,
+    val seekbarInactiveColor:Color,
+    val runtimeColor:Color,
     val remainingTimeColor:Color,
     val seekbarThickness:Dp
 )
@@ -52,10 +53,11 @@ data class PlayerControlsConfiguration(
 object PlayerDefaults{
     val defaultPlayerControls = PlayerControlsStyle(
         centerControlColors = Color.White,
-        seekbarColor =Color.White,
+        seekbarActiveColor =Color.White,
         runtimeColor =Color.White,
         remainingTimeColor =Color.White,
-        seekbarThickness =3.dp
+        seekbarThickness =3.dp,
+        seekbarInactiveColor = Color.Gray
     )
 
     val defaultPlayerControlsConfiguration = PlayerControlsConfiguration(

@@ -50,15 +50,6 @@ class MainActivity : ComponentActivity() {
                                 .aspectRatio(16f / 9f),
                             mediaUrl = "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4",
                         )
-                        Box(modifier = Modifier.height(150.dp).width(150.dp).padding(5.dp)
-                           // onPlayPauseToggle(isPlaying)
-                        ) {
-                            ComposePlayPauseButton(modifier = Modifier.fillMaxSize(), iconColor = Color.Black, isVideoPlaying = false){
-
-                            }
-                        }
-
-
                     }
 
                 }

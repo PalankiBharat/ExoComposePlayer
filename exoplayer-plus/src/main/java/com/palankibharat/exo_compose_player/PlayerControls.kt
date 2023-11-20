@@ -1,11 +1,6 @@
 package com.palankibharat.exo_compose_player
 
-import android.app.Activity
-import android.content.Context
-import android.provider.Settings
 import android.util.Log
-import android.view.WindowManager
-import androidx.annotation.FloatRange
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -23,6 +18,8 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Slider
+import androidx.compose.material3.SliderDefaults
+import androidx.compose.material3.SliderPositions
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -33,23 +30,10 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.media3.common.Player
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.flow.flow
-import kotlinx.coroutines.flow.flowOn
-import java.util.concurrent.TimeUnit
-import kotlin.math.abs
-import kotlin.time.Duration
-import kotlin.time.Duration.Companion.milliseconds
-import kotlin.time.Duration.Companion.seconds
-import kotlin.time.DurationUnit
-import kotlin.time.toDuration
 
 @Composable
 fun CenterPlayerControls(
@@ -93,7 +77,8 @@ fun CenterPlayerControls(
             verticalAlignment = Alignment.CenterVertically,
         ) {
             // Brightness Slider
-            if (isInFullPlayerMode && playerControlsConfiguration.isBrightnessSliderEnabled) {
+            val shouldShowBrightnessSlider = isInFullPlayerMode && playerControlsConfiguration.isBrightnessSliderEnabled
+            if (shouldShowBrightnessSlider) {
                 Column {
                     IconButton(onClick = { }) {
                         Icon(
@@ -124,7 +109,8 @@ fun CenterPlayerControls(
                 ) {
                     DoubleTapToForwardIcon(
                         isForward = false,
-                        forwardIntervalTime = playerControlsConfiguration.forwardClickIntervalTime
+                        forwardIntervalTime = playerControlsConfiguration.forwardClickIntervalTime,
+                        color = playerControlsStyle.centerControlColors
                     ) {
                         onReplayClick()
                     }
@@ -142,9 +128,12 @@ fun CenterPlayerControls(
              }*/
 
             // pause/play toggle button
-            Box(modifier = Modifier.padding(horizontal = 10.dp).size(30.dp).clickable(interactionSource = MutableInteractionSource(),indication = null) {
-               // onPlayPauseToggle(isPlaying)
-            }) {
+            Box(modifier = Modifier
+                .padding(horizontal = 10.dp)
+                .size(30.dp)
+                .clickable(interactionSource = MutableInteractionSource(), indication = null) {
+                    // onPlayPauseToggle(isPlaying)
+                }) {
                 ComposePlayPauseButton(modifier = Modifier.fillMaxSize(), iconColor = playerControlsStyle.centerControlColors, isVideoPlaying = isPlaying){
                     onPlayPauseToggle()
                 }
@@ -158,7 +147,7 @@ fun CenterPlayerControls(
                     .weight(1f)
             ) {
                 Box(modifier = Modifier.fillMaxWidth()) {
-                    DoubleTapToForwardIcon(isForward = true) {
+                    DoubleTapToForwardIcon(isForward = true, color = playerControlsStyle.centerControlColors, forwardIntervalTime = playerControlsConfiguration.forwardClickIntervalTime) {
                         onForwardClick()
                     }
                 }
@@ -176,7 +165,8 @@ fun CenterPlayerControls(
              }*/
 
             // Volume Slider
-            if (isInFullPlayerMode && playerControlsConfiguration.isVolumeSliderEnabled) {
+            val shouldShowVolumeSlider = isInFullPlayerMode && playerControlsConfiguration.isVolumeSliderEnabled
+            if (shouldShowVolumeSlider) {
                 Column {
                     IconButton(onClick = { }) {
                         Image(
@@ -213,6 +203,12 @@ fun CenterPlayerControls(
                     videoPlaybackPosition = it
                     onSeekBarValueChange(it)
                 },
+                colors = SliderDefaults.colors(
+                    activeTrackColor = playerControlsStyle.seekbarActiveColor,
+                    inactiveTrackColor = playerControlsStyle.seekbarInactiveColor,
+                    thumbColor = playerControlsStyle.seekbarActiveColor
+                )
+
             )
             Text(
                 modifier = Modifier.padding(horizontal = 16.dp),

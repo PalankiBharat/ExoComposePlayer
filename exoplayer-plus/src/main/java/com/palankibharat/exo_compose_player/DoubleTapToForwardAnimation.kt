@@ -33,7 +33,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 
 @Composable
-fun DoubleTapToForwardIcon(isForward: Boolean = true,forwardIntervalTime:Long = 10, replayIntervalTime:Long= 10, onClick: () -> Unit = {}) {
+fun DoubleTapToForwardIcon(isForward: Boolean = true,forwardIntervalTime:Long = 10, replayIntervalTime:Long= 10,color: Color= PlayerDefaults.defaultPlayerControls.centerControlColors, onClick: () -> Unit = {}) {
     val rotation by remember {
         mutableStateOf(Animatable(0f))
     }
@@ -134,13 +134,13 @@ fun DoubleTapToForwardIcon(isForward: Boolean = true,forwardIntervalTime:Long = 
                         onClick()
                     },
                 contentDescription = "",
-                tint = Color.White,
+                tint = color,
                 painter = painterResource(id = R.drawable.forward_only),
             )
             if (alpha.value == 100f) {
                 Text(
                     text = "10",
-                    color = Color.White,
+                    color = color,
                     modifier = Modifier
                         .align(Alignment.Center)
                         .padding(4.dp),
@@ -175,7 +175,7 @@ fun DoubleTapToForwardIcon(isForward: Boolean = true,forwardIntervalTime:Long = 
                 ) {
                     Text(
                         text = if (isForward) "++$forwardIntervalTime" else "--$replayIntervalTime",
-                        color = Color.White,
+                        color = color,
                         modifier = Modifier.fillMaxWidth().run {
                             if (isForward) {
                                 this.padding(start = 14.dp + sliding.value.toInt().dp)
