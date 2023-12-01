@@ -36,9 +36,6 @@ fun ComposePlayPauseButton(
     // isPlaying = true -> Pause Icon
     // isPlaying = true -> Play Icon
 
-    /*var startAnimation by remember {
-        mutableStateOf(false)
-    }*/
     val isPlaying by remember {
         derivedStateOf { isVideoPlaying }
     }
@@ -46,10 +43,6 @@ fun ComposePlayPauseButton(
     var startRunningAnimation by remember {
         mutableStateOf(isPlaying)
     }
-
-//    var pauseLineWidthAnimStateVisibility by remember {
-//        mutableStateOf(false)
-//    }
 
     var radius by remember {
         mutableStateOf(false)
@@ -69,13 +62,6 @@ fun ComposePlayPauseButton(
     LaunchedEffect(key1 = width ){
         pauseLineWidth = width/5
     }
-    /*    val playAnimState by animateDpAsState(
-            targetValue =
-            with(LocalDensity.current) {
-                if (startRunningAnimation) width.toDp() else pauseLineWidth.toDp()
-            },
-            label = "", animationSpec = tween(200)
-        ) */
 
     val playAnimState by remember {
         mutableStateOf(Animatable(initialValue = if (isPlaying) pauseLineWidth else width))
@@ -101,28 +87,12 @@ fun ComposePlayPauseButton(
         )
     }
 
-
-    /*    val secondPauseLineOffsetAnimState by animateDpAsState(
-            targetValue =
-            with(LocalDensity.current) {
-                if (startRunningAnimation) 0.dp else (width - pauseLineWidth).toDp()
-            },
-            label = "", animationSpec = tween(200)
-        )*/
     LaunchedEffect(key1 = startRunningAnimation) {
         secondPauseLineOffsetAnimState.animateTo(
             if (startRunningAnimation) 0f else (width - pauseLineWidth),
             animationSpec = tween(200)
         )
     }
-
-
-
-    /*   val pauseLineWidthAnimState by animateDpAsState(
-           targetValue = if (pauseLineWidthAnimStateVisibility) 0.dp else with(LocalDensity.current) { pauseLineWidth.toDp() },
-           label = "",
-           animationSpec = tween(200)
-       )*/
 
     LaunchedEffect(key1 = startRunningAnimation) {
         pauseLineWidthAnimState.animateTo(
@@ -145,17 +115,6 @@ fun ComposePlayPauseButton(
             false
         }
     }
-
-    /*    LaunchedEffect(key1 = startRunningAnimation) {
-            pauseLineWidthAnimStateVisibility = if (startRunningAnimation) {
-                delay(100)
-                true
-            } else {
-                false
-            }
-        }*/
-
-
 
     Canvas(modifier = modifier.clickable {
         startRunningAnimation = !startRunningAnimation
@@ -213,10 +172,5 @@ fun ComposePlayPauseButton(
         }
     }
 }
-
-/*fun  Animatable<Float, AnimationVector1D>.toPx():Float{
-        return this@toPx.value.dp.toPx()
-
-}*/
 
 
