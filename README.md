@@ -70,7 +70,7 @@ repositories {
 }
 ```
 
-- Add Chimney library dependency
+- Add ExoComposePlayer library dependency
 
 Groovy
 ``` 

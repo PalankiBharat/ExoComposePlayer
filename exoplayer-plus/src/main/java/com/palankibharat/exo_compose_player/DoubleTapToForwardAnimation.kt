@@ -31,9 +31,16 @@ import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
+import com.palankibharat.exo_compose_player.models.PlayerDefaults
 
 @Composable
-fun DoubleTapToForwardIcon(isForward: Boolean = true,forwardIntervalTime:Long = 10, replayIntervalTime:Long= 10, onClick: () -> Unit = {}) {
+fun DoubleTapToForwardIcon(
+    isForward: Boolean = true,
+    forwardIntervalTime: Long = 10,
+    replayIntervalTime: Long = 10,
+    color: Color = PlayerDefaults.defaultPlayerControls.centerControlColors,
+    onClick: () -> Unit = {}
+) {
     val rotation by remember {
         mutableStateOf(Animatable(0f))
     }
@@ -95,9 +102,11 @@ fun DoubleTapToForwardIcon(isForward: Boolean = true,forwardIntervalTime:Long = 
     }
 
     Box(
-        modifier = Modifier.fillMaxWidth().clickable(interactionSource = MutableInteractionSource(), indication = null) {
+        modifier = Modifier
+            .fillMaxWidth()
+            .clickable(interactionSource = MutableInteractionSource(), indication = null) {
 
-        },
+            },
     ) {
         // Icon Box
         Box(
@@ -114,7 +123,7 @@ fun DoubleTapToForwardIcon(isForward: Boolean = true,forwardIntervalTime:Long = 
                     height = it.size.height
                 },
 
-        ) {
+            ) {
             Icon(
                 modifier = Modifier
                     .run {
@@ -134,13 +143,13 @@ fun DoubleTapToForwardIcon(isForward: Boolean = true,forwardIntervalTime:Long = 
                         onClick()
                     },
                 contentDescription = "",
-                tint = Color.White,
+                tint = color,
                 painter = painterResource(id = R.drawable.forward_only),
             )
             if (alpha.value == 100f) {
                 Text(
                     text = "10",
-                    color = Color.White,
+                    color = color,
                     modifier = Modifier
                         .align(Alignment.Center)
                         .padding(4.dp),
@@ -173,9 +182,14 @@ fun DoubleTapToForwardIcon(isForward: Boolean = true,forwardIntervalTime:Long = 
                             }
                         },
                 ) {
+                    val text = if (isForward) {
+                        "++$forwardIntervalTime"
+                    } else {
+                        "--$replayIntervalTime"
+                    }
                     Text(
-                        text = if (isForward) "++$forwardIntervalTime" else "--$replayIntervalTime",
-                        color = Color.White,
+                        text = text,
+                        color = color,
                         modifier = Modifier.fillMaxWidth().run {
                             if (isForward) {
                                 this.padding(start = 14.dp + sliding.value.toInt().dp)
@@ -187,19 +201,5 @@ fun DoubleTapToForwardIcon(isForward: Boolean = true,forwardIntervalTime:Long = 
                 }
             }
         }
-    }
-}
-
-@Composable
-private fun DoubleTapToForwardIconPreview() {
-    Box(modifier = Modifier.fillMaxWidth()) {
-        DoubleTapToForwardIcon(isForward = true)
-    }
-}
-
-@Composable
-private fun DoubleTapToBackwardIconPreview() {
-    Box(modifier = Modifier.fillMaxWidth()) {
-        DoubleTapToForwardIcon(isForward = false)
     }
 }
