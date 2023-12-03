@@ -1,5 +1,8 @@
 package com.palankibharat.exo_compose_player
 
+import android.app.Activity
+import android.content.pm.ActivityInfo
+import android.content.res.Configuration
 import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -9,6 +12,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -19,7 +23,6 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Slider
 import androidx.compose.material3.SliderDefaults
-import androidx.compose.material3.SliderPositions
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -30,10 +33,17 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.tooling.preview.Devices
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.palankibharat.exo_compose_player.models.PlayerControlsConfiguration
+import com.palankibharat.exo_compose_player.models.PlayerControlsStyle
+import com.palankibharat.exo_compose_player.models.PlayerDefaults
 
 @Composable
 fun CenterPlayerControls(
@@ -50,11 +60,13 @@ fun CenterPlayerControls(
     onBrightnessChange: (value: Float) -> Unit = {},
     brightnessLevel: Float,
     onVolumeChange: (value: Float) -> Unit = {},
+    onPlayerModeChangeClick: () -> Unit = {},
     volumeLevel: Float,
-    playerMode: PlayerModes = PlayerModes.FULL_PLAYER,
+    playerMode: PlayerModes = PlayerModes.MINI_PLAYER,
     isPlaying: Boolean,
 ) {
     val context = LocalContext.current
+    val activity = context as Activity
 
     var videoPlaybackPosition by remember {
         mutableFloatStateOf(seekbarPosition)
@@ -77,7 +89,8 @@ fun CenterPlayerControls(
             verticalAlignment = Alignment.CenterVertically,
         ) {
             // Brightness Slider
-            val shouldShowBrightnessSlider = isInFullPlayerMode && playerControlsConfiguration.isBrightnessSliderEnabled
+            val shouldShowBrightnessSlider =
+                isInFullPlayerMode && playerControlsConfiguration.isBrightnessSliderEnabled
             if (shouldShowBrightnessSlider) {
                 Column {
                     IconButton(onClick = { }) {
@@ -97,7 +110,7 @@ fun CenterPlayerControls(
                 }
             }
 
-            // replay button
+            // replay button - Backward Button
             Box(
                 modifier = Modifier
                     .height(48.dp)
@@ -109,63 +122,49 @@ fun CenterPlayerControls(
                 ) {
                     DoubleTapToForwardIcon(
                         isForward = false,
-                        forwardIntervalTime = playerControlsConfiguration.forwardClickIntervalTime,
+                        forwardIntervalTime = playerControlsConfiguration.replayClickIntervalTime/1000,
                         color = playerControlsStyle.centerControlColors
                     ) {
                         onReplayClick()
                     }
                 }
             }
-            /* IconButton(modifier = Modifier.size(40.dp), onClick = {
-                 onReplayClick()
-             }) {
-                 Image(
-                     modifier = Modifier.fillMaxSize(),
-                     contentScale = ContentScale.Crop,
-                     painter = painterResource(id = R.drawable.ic_exo_icon_rewind),
-                     contentDescription = "Replay 15 seconds",
-                 )
-             }*/
 
             // pause/play toggle button
             Box(modifier = Modifier
                 .padding(horizontal = 10.dp)
                 .size(30.dp)
                 .clickable(interactionSource = MutableInteractionSource(), indication = null) {
-                    // onPlayPauseToggle(isPlaying)
                 }) {
-                ComposePlayPauseButton(modifier = Modifier.fillMaxSize(), iconColor = playerControlsStyle.centerControlColors, isVideoPlaying = isPlaying){
+                ComposePlayPauseButton(
+                    modifier = Modifier.fillMaxSize(),
+                    iconColor = playerControlsStyle.centerControlColors,
+                    isVideoPlaying = isPlaying
+                ) {
                     onPlayPauseToggle()
                 }
             }
 
             // forward button
-
             Box(
                 modifier = Modifier
                     .height(48.dp)
                     .weight(1f)
             ) {
                 Box(modifier = Modifier.fillMaxWidth()) {
-                    DoubleTapToForwardIcon(isForward = true, color = playerControlsStyle.centerControlColors, forwardIntervalTime = playerControlsConfiguration.forwardClickIntervalTime) {
+                    DoubleTapToForwardIcon(
+                        isForward = true,
+                        color = playerControlsStyle.centerControlColors,
+                        forwardIntervalTime = playerControlsConfiguration.forwardClickIntervalTime/1000
+                    ) {
                         onForwardClick()
                     }
                 }
             }
 
-            /* IconButton(modifier = Modifier.size(40.dp), onClick = {
-                 onForwardClick()
-             }) {
-                 Image(
-                     modifier = Modifier.fillMaxSize(),
-                     contentScale = ContentScale.Crop,
-                     painter = painterResource(id = R.drawable.ic_exo_icon_fastforward),
-                     contentDescription = "Forward 10 seconds",
-                 )
-             }*/
-
             // Volume Slider
-            val shouldShowVolumeSlider = isInFullPlayerMode && playerControlsConfiguration.isVolumeSliderEnabled
+            val shouldShowVolumeSlider =
+                isInFullPlayerMode && playerControlsConfiguration.isVolumeSliderEnabled
             if (shouldShowVolumeSlider) {
                 Column {
                     IconButton(onClick = { }) {
@@ -218,37 +217,53 @@ fun CenterPlayerControls(
             )
         }
 
-        /*if (playerMode == PlayerModes.MINI_PLAYER) {
-            Image(
-                modifier = Modifier
-                    .size(40.dp)
-                    .align(Alignment.BottomEnd)
-                    .clickable {
-                        val activity = context as Activity
 
-                        activity.requestedOrientation =
-                            ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE
-                    },
-                contentScale = ContentScale.Crop,
-                painter = painterResource(id = R.drawable.ic_fullscreen),
-                contentDescription = "Full Screen",
-            )
-        }
-        else{
+        IconButton(modifier =Modifier
+            .padding(top = 20.dp, end = 10.dp)
+            .size(28.dp)
+            .align(Alignment.TopEnd), onClick = {
+            val orientation =
+                if (isInFullPlayerMode) ActivityInfo.SCREEN_ORIENTATION_FULL_SENSOR else ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE
+            activity.requestedOrientation = orientation
+            onPlayerModeChangeClick()
+        }) {
             Image(
-                modifier = Modifier
-                    .size(28.dp)
-                    .align(Alignment.BottomEnd)
-                    .clickable {
-                        val activity = context as Activity
-
-                        activity.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
-                    },
-                contentScale = ContentScale.Crop,
-                painter = painterResource(id = R.drawable.ic_fullscreen_exit),
+                contentScale = ContentScale.Fit,
+                painter = painterResource(id = if (isInFullPlayerMode) R.drawable.ic_fullscreen_exit else R.drawable.ic_fullscreen),
                 contentDescription = "Mini Screen",
             )
-        }*/
+        }
+    }
+}
+
+
+@Preview(showBackground = true, device = Devices.AUTOMOTIVE_1024p, widthDp = 480)
+@Preview(device = Devices.PIXEL_4_XL, showSystemUi = true)
+@Composable
+fun CenterPlayerControlsPreview() {
+    Box(
+        modifier = Modifier
+            .fillMaxWidth()
+            .aspectRatio(16f / 9f)
+    )
+    {
+        val configuration = LocalConfiguration.current
+        if (configuration.orientation == Configuration.ORIENTATION_LANDSCAPE) {
+            CenterPlayerControls(
+                brightnessLevel = 50f,
+                volumeLevel = 20f,
+                isPlaying = true,
+                playerMode = PlayerModes.FULL_PLAYER
+            )
+        } else {
+            CenterPlayerControls(
+                brightnessLevel = 50f,
+                volumeLevel = 20f,
+                isPlaying = true,
+                playerMode = PlayerModes.MINI_PLAYER
+            )
+        }
+
     }
 }
 

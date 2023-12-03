@@ -1,5 +1,6 @@
 package com.palankibharat.exoplayerplus
 
+import android.content.pm.ActivityInfo
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -45,25 +46,21 @@ class MainActivity : ComponentActivity() {
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colorScheme.background,
                 ) {
-                  /*  Column {
+                    Column {
                         ExoComposePlayer(
                             modifier = Modifier
                                 .fillMaxWidth()
                                 .aspectRatio(16f / 9f),
                             mediaUrl = "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4",
+                            onFullScreenClick = {isInFullScreenMode->
+                                if (isInFullScreenMode)
+                                {
+                                    this@MainActivity.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_FULL_SENSOR
+                                }else{
+                                    this@MainActivity.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE
+                                }
+                            }
                         )
-                    }*/
-
-                    Box {
-                        ComposePlayPauseButton(
-                            modifier = Modifier
-                                .height(100.dp)
-                                .width(100.dp)
-                                .align(Alignment.Center),
-                            iconColor = Color.Green
-                        ) {
-
-                        }
                     }
                 }
             }
