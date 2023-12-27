@@ -17,12 +17,12 @@ import kotlin.time.Duration.Companion.seconds
  * @param remainingTimeColor is the color of the remaining time of the video value text (Value in the right side of the seekbar)
  */
 data class PlayerControlsStyle(
-    val centerControlColors:Color,
-    val seekbarActiveColor:Color,
-    val seekbarInactiveColor:Color,
-    val runtimeColor:Color,
-    val remainingTimeColor:Color,
-    val seekbarThickness:Dp
+    val centerControlColors:Color = PlayerDefaults.defaultPlayerControls.centerControlColors,
+    val seekbarActiveColor:Color = PlayerDefaults.defaultPlayerControls.seekbarActiveColor,
+    val seekbarInactiveColor:Color = PlayerDefaults.defaultPlayerControls.seekbarInactiveColor,
+    val runtimeColor:Color = PlayerDefaults.defaultPlayerControls.runtimeColor,
+    val remainingTimeColor:Color = PlayerDefaults.defaultPlayerControls.remainingTimeColor,
+    val seekbarThickness:Dp = PlayerDefaults.defaultPlayerControls.seekbarThickness
 )
 
 
