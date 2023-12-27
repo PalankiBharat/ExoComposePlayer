@@ -2,12 +2,17 @@ package com.palankibharat.exo_compose_player
 
 import android.app.Activity
 import android.content.Context
+import android.net.Uri
 import android.provider.Settings
 import android.util.Log
 import android.view.WindowManager
 import androidx.annotation.FloatRange
+import androidx.media3.common.C
+import androidx.media3.common.MediaItem
+import androidx.media3.common.MimeTypes
 import androidx.media3.common.Player
 import androidx.media3.exoplayer.ExoPlayer
+import com.palankibharat.exo_compose_player.models.Subtitle
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.flow
@@ -92,4 +97,24 @@ fun Context.getCurrentBrightness(): Float {
     }
     Log.d("TAG", "getCurrentBrightness: $curBrightness")
     return curBrightness
+}
+
+fun List<Subtitle>.toListOfSubtitleConfiguration():List<MediaItem.SubtitleConfiguration>
+{
+    val subtitles = listOf<MediaItem.SubtitleConfiguration>().toMutableList()
+    this.forEach {
+        val subtitle = MediaItem.SubtitleConfiguration.Builder(Uri.parse(it.url))
+            .setMimeType(MimeTypes.APPLICATION_SUBRIP)
+            .setLanguage(it.language)
+            .setSelectionFlags(C.SELECTION_FLAG_DEFAULT)
+            .build()
+
+    /*    val subtitle = MediaItem.SubtitleConfiguration.Builder(Uri.parse("https://drive.google.com/uc?export=download&id=1n3VLrbMmEDNvJX48KWxWn8534t_sVPD-"))
+            .setMimeType(MimeTypes.APPLICATION_SUBRIP)
+            .setLanguage("en")
+            .setSelectionFlags(C.SELECTION_FLAG_DEFAULT)
+            .build()*/
+        subtitles.add(subtitle)
+    }
+    return subtitles.toList()
 }
