@@ -1,11 +1,14 @@
 package com.palankibharat.exo_compose_player
 
+import android.util.Log
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.FastOutLinearInEasing
 import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.tween
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -147,8 +150,13 @@ fun DoubleTapToForwardIcon(
                 painter = painterResource(id = R.drawable.forward_only),
             )
             if (alpha.value == 100f) {
+                val text = if (isForward) {
+                    "$forwardIntervalTime"
+                } else {
+                    "$replayIntervalTime"
+                }
                 Text(
-                    text = "10",
+                    text = text,
                     color = color,
                     modifier = Modifier
                         .align(Alignment.Center)
@@ -162,25 +170,18 @@ fun DoubleTapToForwardIcon(
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .run {
-                        if (!isForward) {
-                            this.align(Alignment.CenterEnd)
-                        } else {
-                            this.align(Alignment.CenterStart)
-                        }
-                    }
                     .height(height = with(LocalDensity.current) { height.toDp() }),
             ) {
                 Row(
                     modifier = Modifier
                         .alpha(alpha.value / 100)
-                        .run {
-                            if (isForward) {
-                                this.align(Alignment.CenterStart)
-                            } else {
-                                this.align(Alignment.CenterEnd)
-                            }
-                        },
+                        .fillMaxWidth(),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = if (isForward) {
+                        Arrangement.Start
+                    } else {
+                        Arrangement.End
+                    }
                 ) {
                     val text = if (isForward) {
                         "++$forwardIntervalTime"
@@ -190,13 +191,16 @@ fun DoubleTapToForwardIcon(
                     Text(
                         text = text,
                         color = color,
-                        modifier = Modifier.fillMaxWidth().run {
-                            if (isForward) {
-                                this.padding(start = 14.dp + sliding.value.toInt().dp)
-                            } else {
-                                this.padding(end = 14.dp + sliding.value.toInt().dp)
-                            }
-                        },
+                        modifier = Modifier
+                            .run {
+                                if (isForward) {
+                                    this.padding(start = 14.dp + sliding.value.toInt().dp)
+                                } else {
+                                    Log.d(TAG, "Sliding Back Value: ${sliding.value.toInt()}")
+                                    // this.padding(end = 14.dp + sliding.value.toInt().dp)
+                                    this.padding(start = 14.dp + sliding.value.toInt().dp)
+                                }
+                            },
                     )
                 }
             }
