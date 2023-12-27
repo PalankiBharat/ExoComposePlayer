@@ -45,7 +45,7 @@ fun HSlider(modifier: Modifier = Modifier ,@FloatRange(from = 0.0, to = 1.0) def
                     layout(placeable.height, placeable.width) {
                         placeable.place(-placeable.width, 0)
                     }
-                }.height(sliderStyle.sliderWidth),
+                }.height(sliderStyle.sliderthickness),
             value = sliderPosition,
             onValueChange = {
                 onValueChange(sliderPosition)
@@ -82,7 +82,7 @@ fun HSliderPrev() {
 */
 
 data class SliderStyle(
-    val sliderWidth:Dp,
+    val sliderthickness:Dp,
     val activeTrackColor: Color,
     val inactiveTrackColor: Color,
 ){

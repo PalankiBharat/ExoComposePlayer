@@ -52,26 +52,10 @@ class MainActivity : ComponentActivity() {
                                 .fillMaxWidth()
                                 .aspectRatio(16f / 9f),
                             mediaUrl = "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4",
-                            onFullScreenClick = {isInFullScreenMode->
-                                if (isInFullScreenMode)
-                                {
-                                    this@MainActivity.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_FULL_SENSOR
-                                }else{
-                                    this@MainActivity.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE
-                                }
-                            }
                         )
                     }
                 }
             }
-        }
-    }
-
-    @Preview
-    @Composable
-    fun PlayPauseButton() {
-        ComposePlayPauseButton(modifier = Modifier.size(50.dp), iconColor = Color.Green) {
-
         }
     }
 }

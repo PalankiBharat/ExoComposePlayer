@@ -62,7 +62,6 @@ fun ExoComposePlayer(
     playerControllerStyle: PlayerControlsStyle = PlayerDefaults.defaultPlayerControls,
     playerControlsConfiguration: PlayerControlsConfiguration = PlayerDefaults.defaultPlayerControlsConfiguration,
     //exoplayerBuilder: ExoPlayer.Builder? = null,
-    onFullScreenClick: (isInFullScreenMode: Boolean) -> Unit = {},
     //getExoplayer: (ExoPlayer) -> Unit = {},
     playerModes: PlayerModes = PlayerModes.FULL_PLAYER,
 ) {
@@ -72,8 +71,7 @@ fun ExoComposePlayer(
         playerControllerStyle = playerControllerStyle,
         playerControlsConfiguration = playerControlsConfiguration,
         listOfSubtitle = listOfSubtitle,
-        onFullScreenClick = { onFullScreenClick(false) },
-    )
+        )
 }
 
 @OptIn(UnstableApi::class)
@@ -85,7 +83,6 @@ private fun InternalExoPlayer(
     playerControlsConfiguration: PlayerControlsConfiguration = PlayerDefaults.defaultPlayerControlsConfiguration,
     //exoplayerBuilder: Media= null,
     listOfSubtitle: List<Subtitle> = emptyList(),
-    onFullScreenClick: () -> Unit = {},
     //getExoplayer: (ExoPlayer) -> Unit = {},
 ) {
     val context = LocalContext.current
