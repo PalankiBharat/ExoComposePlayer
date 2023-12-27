@@ -1,3 +1,4 @@
+
 # ExoComposePlayer - Simple Player Built upon Exoplayer 
 # :construction: Under Development :construction:
 
@@ -12,6 +13,9 @@ ExoComposePlayer is an Android library built upon ExoPlayer, designed to simplif
 - Custom Player Controls: Tailor the user interface to match your app's design by using customizable player controls provided by ComposePlayerLib.
 - Built for Jetpack Compose: ComposePlayerLib is specifically designed for Jetpack Compose, making it easy to integrate with your existing Compose-based UI.
 - Picture-in-Picture (PiP) Support: Enable Picture-in-Picture mode for a seamless, multitasking video playback experience, allowing users to continue watching content while navigating your app.
+- Micro Animations : Micro Animations added to make the UI feel premium not as a simple ExoPlayer. 
+- Full Screen in Just a Single Click 
+- Customisation Capabalities
 
 
 ## Usage
@@ -52,7 +56,7 @@ android:configChanges="navigation|screenLayout|orientation"
 
 
 ## Installation
-- Add jitpack.io to your project
+Add jitpack.io to your project
 
 Groovy
 ```
@@ -76,7 +80,7 @@ Groovy
 ``` 
 dependencies { 
   ...
-  implementation 'com.github.PalankiBharat:ExoPlayerPlus:0.1.9'
+  implementation 'com.github.PalankiBharat:ExoPlayerPlus:0.2.0'
 }
 ```
 
@@ -84,7 +88,7 @@ Kotlin
 ``` 
 dependencies { 
   ...
-  implementation ("com.github.PalankiBharat:ExoPlayerPlus:0.1.9")
+  implementation ("com.github.PalankiBharat:ExoPlayerPlus:0.2.0")
 }
 ```
     
