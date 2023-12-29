@@ -1,11 +1,9 @@
 package com.palankibharat.exo_compose_player
 
-import android.util.Log
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.FastOutLinearInEasing
 import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.tween
-import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
@@ -30,6 +28,7 @@ import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.layout.AlignmentLine
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.painterResource
@@ -172,37 +171,28 @@ fun DoubleTapToForwardIcon(
                     .fillMaxWidth()
                     .height(height = with(LocalDensity.current) { height.toDp() }),
             ) {
-                Row(
+                val text = if (isForward) {
+                    "++$forwardIntervalTime"
+                } else {
+                    "--$replayIntervalTime"
+                }
+                Text(
+                    text = text,
+                    color = color,
                     modifier = Modifier
                         .alpha(alpha.value / 100)
-                        .fillMaxWidth(),
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = if (isForward) {
-                        Arrangement.Start
-                    } else {
-                        Arrangement.End
-                    }
-                ) {
-                    val text = if (isForward) {
-                        "++$forwardIntervalTime"
-                    } else {
-                        "--$replayIntervalTime"
-                    }
-                    Text(
-                        text = text,
-                        color = color,
-                        modifier = Modifier
-                            .run {
-                                if (isForward) {
-                                    this.padding(start = 14.dp + sliding.value.toInt().dp)
-                                } else {
-                                    Log.d(TAG, "Sliding Back Value: ${sliding.value.toInt()}")
-                                    // this.padding(end = 14.dp + sliding.value.toInt().dp)
-                                    this.padding(start = 14.dp + sliding.value.toInt().dp)
-                                }
-                            },
-                    )
-                }
+                        .run {
+                            if (isForward) {
+                                this
+                                    .align(Alignment.CenterStart)
+                                    .padding(start = 14.dp + sliding.value.toInt().dp)
+                            } else {
+                                this
+                                    .align(Alignment.CenterEnd)
+                                    .padding(end = 14.dp + sliding.value.toInt().dp)
+                            }
+                        },
+                )
             }
         }
     }
