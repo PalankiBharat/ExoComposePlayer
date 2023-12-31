@@ -12,6 +12,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
@@ -50,6 +51,7 @@ fun CenterPlayerControls(
     modifier: Modifier = Modifier,
     playerControlsStyle: PlayerControlsStyle = PlayerDefaults.defaultPlayerControls,
     playerControlsConfiguration: PlayerControlsConfiguration = PlayerDefaults.defaultPlayerControlsConfiguration,
+    playerStates: PlayerStates,
     onReplayClick: () -> Unit = {},
     onPlayPauseToggle: () -> Unit = {},
     onForwardClick: () -> Unit = {},
@@ -63,7 +65,6 @@ fun CenterPlayerControls(
     onPlayerModeChangeClick: () -> Unit = {},
     volumeLevel: Float,
     playerMode: PlayerModes = PlayerModes.MINI_PLAYER,
-    isPlaying: Boolean,
 ) {
     val context = LocalContext.current
     val activity = context as Activity
@@ -110,55 +111,14 @@ fun CenterPlayerControls(
                 }
             }
 
-            // replay button - Backward Button
-            Box(
-                modifier = Modifier
-                    .height(48.dp)
-                    .weight(1f)
-            ) {
-                Box(
-                    Modifier
-                        .align(Alignment.CenterEnd)
-                ) {
-                    DoubleTapToForwardIcon(
-                        isForward = false,
-                        forwardIntervalTime = playerControlsConfiguration.replayClickIntervalTime/1000,
-                        color = playerControlsStyle.centerControlColors
-                    ) {
-                        onReplayClick()
-                    }
-                }
-            }
-
-            // pause/play toggle button
-            Box(modifier = Modifier
-                .padding(horizontal = 10.dp)
-                .size(30.dp)
-                .clickable(interactionSource = MutableInteractionSource(), indication = null) {
-                }) {
-                ComposePlayPauseButton(
-                    modifier = Modifier.fillMaxSize(),
-                    iconColor = playerControlsStyle.centerControlColors,
-                    isVideoPlaying = isPlaying
-                ) {
+            if (!playerStates.loading) {
+                FrontThreeControls(
+                    playerStates = playerStates,
+                    playerControlsConfiguration = playerControlsConfiguration,
+                    playerControlsStyle = playerControlsStyle,
+                    onReplayClick = { onReplayClick() },
+                    onForwardClick = { onForwardClick() }) {
                     onPlayPauseToggle()
-                }
-            }
-
-            // forward button
-            Box(
-                modifier = Modifier
-                    .height(48.dp)
-                    .weight(1f)
-            ) {
-                Box(modifier = Modifier.fillMaxWidth()) {
-                    DoubleTapToForwardIcon(
-                        isForward = true,
-                        color = playerControlsStyle.centerControlColors,
-                        forwardIntervalTime = playerControlsConfiguration.forwardClickIntervalTime/1000
-                    ) {
-                        onForwardClick()
-                    }
                 }
             }
 
@@ -218,7 +178,7 @@ fun CenterPlayerControls(
         }
 
 
-        IconButton(modifier =Modifier
+        IconButton(modifier = Modifier
             .padding(top = 20.dp, end = 10.dp)
             .size(28.dp)
             .align(Alignment.TopEnd), onClick = {
@@ -252,18 +212,95 @@ fun CenterPlayerControlsPreview() {
             CenterPlayerControls(
                 brightnessLevel = 50f,
                 volumeLevel = 20f,
-                isPlaying = true,
-                playerMode = PlayerModes.FULL_PLAYER
+                playerMode = PlayerModes.FULL_PLAYER,
+                playerStates = PlayerStates(
+                    areControlsVisible = true,
+                    playerMode = PlayerModes.FULL_PLAYER,
+                    totalDuration = 5589L,
+                    brightnessLevel = 2341f,
+                    isPlayingValue = true,
+                    loading = true
+                )
             )
         } else {
             CenterPlayerControls(
                 brightnessLevel = 50f,
                 volumeLevel = 20f,
-                isPlaying = true,
+                playerStates = PlayerStates(
+                    areControlsVisible = true,
+                    playerMode = PlayerModes.FULL_PLAYER,
+                    totalDuration = 5589L,
+                    brightnessLevel = 2341f,
+                    isPlayingValue = true,
+                    loading = true
+                ),
                 playerMode = PlayerModes.MINI_PLAYER
             )
         }
 
     }
+}
+
+@Composable
+fun RowScope.FrontThreeControls(
+    playerStates: PlayerStates,
+    playerControlsConfiguration: PlayerControlsConfiguration,
+    playerControlsStyle: PlayerControlsStyle,
+    onReplayClick: () -> Unit,
+    onForwardClick: () -> Unit,
+    onPlayPauseToggle: () -> Unit
+) {
+    // replay button - Backward Button
+    Box(
+        modifier = Modifier
+            .height(48.dp)
+            .weight(1f)
+    ) {
+        Box(
+            Modifier
+                .align(Alignment.CenterEnd)
+        ) {
+            DoubleTapToForwardIcon(
+                isForward = false,
+                forwardIntervalTime = playerControlsConfiguration.replayClickIntervalTime / 1000,
+                color = playerControlsStyle.centerControlColors
+            ) {
+                onReplayClick()
+            }
+        }
+    }
+
+    // pause/play toggle button
+    Box(modifier = Modifier
+        .padding(horizontal = 10.dp)
+        .size(30.dp)
+        .clickable(interactionSource = MutableInteractionSource(), indication = null) {
+        }) {
+        ComposePlayPauseButton(
+            modifier = Modifier.fillMaxSize(),
+            iconColor = playerControlsStyle.centerControlColors,
+            isVideoPlaying = playerStates.isPlayingValue
+        ) {
+            onPlayPauseToggle()
+        }
+    }
+
+    // forward button
+    Box(
+        modifier = Modifier
+            .height(48.dp)
+            .weight(1f)
+    ) {
+        Box(modifier = Modifier.fillMaxWidth()) {
+            DoubleTapToForwardIcon(
+                isForward = true,
+                color = playerControlsStyle.centerControlColors,
+                forwardIntervalTime = playerControlsConfiguration.forwardClickIntervalTime / 1000
+            ) {
+                onForwardClick()
+            }
+        }
+    }
+
 }
 

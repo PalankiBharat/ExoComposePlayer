@@ -18,6 +18,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -41,7 +42,14 @@ import com.palankibharat.exo_compose_player.models.PlayerControlsConfiguration
 import com.palankibharat.exo_compose_player.models.PlayerControlsStyle
 import com.palankibharat.exo_compose_player.models.PlayerDefaults
 import com.palankibharat.exo_compose_player.models.Subtitle
+import kotlinx.coroutines.FlowPreview
+import kotlinx.coroutines.channels.BufferOverflow
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.debounce
+import kotlinx.coroutines.flow.flow
 
 val TAG = "ExoComposePlayer"
 
@@ -191,7 +199,7 @@ private fun InternalExoPlayer(
                 enter = fadeIn(),
                 exit = fadeOut(),
             ) {
-                CenterPlayerControls(
+                 CenterPlayerControls(
                     modifier = Modifier.fillMaxSize(),
                     onReplayClick = { exoPlayer.seekBackward(playerControlsConfiguration.replayClickIntervalTime) },
                     onPlayPauseToggle = {
@@ -219,7 +227,6 @@ private fun InternalExoPlayer(
                     playerMode = playerStates.playerMode,
                     playerControlsConfiguration = playerControlsConfiguration,
                     playerControlsStyle = playerControllerStyle,
-                    isPlaying = playerStates.isPlayingValue,
                     onPlayerModeChangeClick = {
                         playerStates =
                             playerStates.copy(
@@ -228,11 +235,17 @@ private fun InternalExoPlayer(
                                     PlayerModes.MINI_PLAYER
                                 } else PlayerModes.FULL_PLAYER
                             )
-                    }
+                    },
+                    playerStates = playerStates
                 )
             }
             AnimatedVisibility(modifier= Modifier.align(Alignment.Center),visible = playerStates.loading, enter = fadeIn(), exit = fadeOut()) {
-                DefaultLoader(modifier = Modifier.align(Alignment.Center), color = Color.Green)
+                if (loader==null) {
+                    DefaultLoader(modifier = Modifier.align(Alignment.Center), color = Color.White)
+                }else
+                {
+                    loader()
+                }
             }
         }
     }
@@ -254,3 +267,5 @@ enum class PlayerModes {
 enum class PlayerState {
     STATE_READY
 }
+
+
