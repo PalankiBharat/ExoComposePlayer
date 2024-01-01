@@ -11,19 +11,17 @@ import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -42,17 +40,20 @@ import com.palankibharat.exo_compose_player.models.PlayerControlsConfiguration
 import com.palankibharat.exo_compose_player.models.PlayerControlsStyle
 import com.palankibharat.exo_compose_player.models.PlayerDefaults
 import com.palankibharat.exo_compose_player.models.Subtitle
-import kotlinx.coroutines.FlowPreview
-import kotlinx.coroutines.channels.BufferOverflow
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.MutableSharedFlow
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.debounce
-import kotlinx.coroutines.flow.flow
 
-val TAG = "ExoComposePlayer"
+const val TAG = "ExoComposePlayer"
 
+/**
+ * Composable function to render an ExoPlayer in a Jetpack Compose UI.
+ *
+ * @param modifier The modifier to apply to this composable.
+ * @param mediaUrl The URL of the media to be played by the ExoPlayer.
+ * @param listOfSubtitle List of subtitles to be displayed with the media.
+ * @param playerControllerStyle The style configuration for the player controls.
+ * @param playerControlsConfiguration The additional configuration for player controls.
+ * @param loader The composable function to render a loading indicator. Default is [DefaultLoader].
+ */
 @OptIn(androidx.media3.common.util.UnstableApi::class)
 @Composable
 fun ExoComposePlayer(
@@ -63,6 +64,12 @@ fun ExoComposePlayer(
     listOfSubtitle: List<Subtitle> = emptyList(),
     playerControllerStyle: PlayerControlsStyle = PlayerDefaults.defaultPlayerControls,
     playerControlsConfiguration: PlayerControlsConfiguration = PlayerDefaults.defaultPlayerControlsConfiguration,
+    loader: @Composable (BoxScope.() -> Unit) = {
+        DefaultLoader(
+            modifier = Modifier.align(Alignment.Center),
+            color = Color.White
+        )
+    }
 ) {
     InternalExoPlayer(
         modifier = modifier,
@@ -70,6 +77,7 @@ fun ExoComposePlayer(
         playerControllerStyle = playerControllerStyle,
         playerControlsConfiguration = playerControlsConfiguration,
         listOfSubtitle = listOfSubtitle,
+        loader = loader
     )
 }
 
@@ -81,7 +89,7 @@ private fun InternalExoPlayer(
     playerControllerStyle: PlayerControlsStyle = PlayerDefaults.defaultPlayerControls,
     playerControlsConfiguration: PlayerControlsConfiguration = PlayerDefaults.defaultPlayerControlsConfiguration,
     listOfSubtitle: List<Subtitle> = emptyList(),
-    loader: @Composable (() -> Unit)? = null
+    loader: @Composable (BoxScope.() -> Unit)
 ) {
 
     val context = LocalContext.current
@@ -199,7 +207,7 @@ private fun InternalExoPlayer(
                 enter = fadeIn(),
                 exit = fadeOut(),
             ) {
-                 CenterPlayerControls(
+                CenterPlayerControls(
                     modifier = Modifier.fillMaxSize(),
                     onReplayClick = { exoPlayer.seekBackward(playerControlsConfiguration.replayClickIntervalTime) },
                     onPlayPauseToggle = {
@@ -239,13 +247,13 @@ private fun InternalExoPlayer(
                     playerStates = playerStates
                 )
             }
-            AnimatedVisibility(modifier= Modifier.align(Alignment.Center),visible = playerStates.loading, enter = fadeIn(), exit = fadeOut()) {
-                if (loader==null) {
-                    DefaultLoader(modifier = Modifier.align(Alignment.Center), color = Color.White)
-                }else
-                {
-                    loader()
-                }
+            AnimatedVisibility(
+                modifier = Modifier.align(Alignment.Center),
+                visible = playerStates.loading,
+                enter = fadeIn(),
+                exit = fadeOut()
+            ) {
+                loader()
             }
         }
     }
