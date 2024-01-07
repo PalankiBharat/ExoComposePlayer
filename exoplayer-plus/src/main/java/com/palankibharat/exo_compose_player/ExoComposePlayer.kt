@@ -1,7 +1,6 @@
 package com.palankibharat.exo_compose_player
 
 import android.app.Activity
-import android.net.Uri
 import android.util.Log
 import android.view.ViewGroup
 import android.widget.FrameLayout
@@ -19,27 +18,17 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.Stable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableFloatStateOf
-import androidx.compose.runtime.mutableLongStateOf
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.saveable.rememberSaveable
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.core.net.toUri
-import androidx.media3.common.C
 import androidx.media3.common.MediaItem
-import androidx.media3.common.MimeTypes
 import androidx.media3.common.Player
 import androidx.media3.common.util.UnstableApi
-import androidx.media3.datasource.RawResourceDataSource
-import androidx.media3.datasource.RawResourceDataSource.buildRawResourceUri
 import androidx.media3.exoplayer.ExoPlayer
 import androidx.media3.ui.AspectRatioFrameLayout.RESIZE_MODE_FILL
 import androidx.media3.ui.PlayerView
@@ -64,6 +53,7 @@ fun ExoComposePlayer(
     //exoplayerBuilder: ExoPlayer.Builder? = null,
     //getExoplayer: (ExoPlayer) -> Unit = {},
     playerModes: PlayerModes = PlayerModes.FULL_PLAYER,
+    exoPlayerState: ExoPlayerState
 ) {
     InternalExoPlayer(
         modifier = modifier,
@@ -71,7 +61,8 @@ fun ExoComposePlayer(
         playerControllerStyle = playerControllerStyle,
         playerControlsConfiguration = playerControlsConfiguration,
         listOfSubtitle = listOfSubtitle,
-        )
+        exoPlayerState = exoPlayerState,
+    )
 }
 
 @OptIn(UnstableApi::class)
@@ -83,23 +74,23 @@ private fun InternalExoPlayer(
     playerControlsConfiguration: PlayerControlsConfiguration = PlayerDefaults.defaultPlayerControlsConfiguration,
     //exoplayerBuilder: Media= null,
     listOfSubtitle: List<Subtitle> = emptyList(),
-    //getExoplayer: (ExoPlayer) -> Unit = {},
+    //getExoplayer: (ExoPlayer) -> Unit = {},,
+    exoPlayerState: ExoPlayerState
 ) {
     val context = LocalContext.current
     val activity = context as Activity
-    var playerStates by remember {
-        mutableStateOf(
-            PlayerStates(
-                brightnessLevel = context.getCurrentBrightness()
-            )
-        )
-    }
+
+
+    val playerStates by exoPlayerState
+
+    Log.e("Player",playerStates.toString())
+
 
     LaunchedEffect(key1 = playerStates.areControlsVisible) {
         Log.d(TAG, "InternalExoPlayer: ${playerStates.areControlsVisible}")
         if (playerStates.areControlsVisible) {
             delay(5000)
-            playerStates = playerStates.copy(areControlsVisible = false)
+            exoPlayerState.updateState(playerStates.copy(areControlsVisible = false))
         }
     }
 
@@ -120,7 +111,7 @@ private fun InternalExoPlayer(
             prepare()
             addListener(object : Player.Listener {
                 override fun onEvents(player: Player, events: Player.Events) {
-                    playerStates = playerStates.copy(totalDuration = player.duration)
+                    exoPlayerState.updateState(playerStates.copy(totalDuration = player.duration))
                 }
             })
             playWhenReady = true
@@ -143,8 +134,7 @@ private fun InternalExoPlayer(
                 .pointerInput(Unit) {
                     val width = this.size.width
                     detectTapGestures(onTap = {
-                        playerStates =
-                            playerStates.copy(areControlsVisible = !playerStates.areControlsVisible)
+                        exoPlayerState.updateState(playerStates.copy(areControlsVisible = !playerStates.areControlsVisible))
                         // playerStates.areControlsVisible = !playerStates.areControlsVisible
                     }, onDoubleTap = {
                         if (playerControlsConfiguration.isDoubleTapToForwardBackwardEnabled) {
@@ -180,8 +170,7 @@ private fun InternalExoPlayer(
                     modifier = Modifier.fillMaxSize(),
                     onReplayClick = { exoPlayer.seekBackward(playerControlsConfiguration.replayClickIntervalTime) },
                     onPlayPauseToggle = {
-                        playerStates =
-                            playerStates.copy(isPlayingValue = !playerStates.isPlayingValue)
+                        exoPlayerState.updateState(playerStates.copy(isPlayingValue = !playerStates.isPlayingValue))
                         if (playerStates.isPlayingValue) {
                             exoPlayer.pause()
                         } else {
@@ -192,7 +181,7 @@ private fun InternalExoPlayer(
                         exoPlayer.seekForward(playerControlsConfiguration.forwardClickIntervalTime)
                     },
                     onBrightnessChange = {
-                        playerStates = playerStates.copy(brightnessLevel = it)
+                        exoPlayerState.updateState(playerStates.copy(brightnessLevel = it))
                     },
                     brightnessLevel = playerStates.brightnessLevel,
                     volumeLevel = 50f,
@@ -206,13 +195,15 @@ private fun InternalExoPlayer(
                     playerControlsStyle = playerControllerStyle,
                     isPlaying = playerStates.isPlayingValue,
                     onPlayerModeChangeClick = {
-                        playerStates =
+
+                        exoPlayerState.updateState(
                             playerStates.copy(
                                 playerMode =
                                 if (playerStates.playerMode == PlayerModes.FULL_PLAYER) {
                                     PlayerModes.MINI_PLAYER
                                 } else PlayerModes.FULL_PLAYER
                             )
+                        )
                     }
                 )
             }
@@ -220,14 +211,3 @@ private fun InternalExoPlayer(
     }
 }
 
-data class PlayerStates(
-    val areControlsVisible: Boolean = false,
-    val playerMode: PlayerModes = PlayerModes.MINI_PLAYER,
-    val totalDuration: Long = 0L,
-    val brightnessLevel: Float = 0f,
-    val isPlayingValue: Boolean = false,
-)
-
-enum class PlayerModes {
-    FULL_PLAYER, MINI_PLAYER
-}
