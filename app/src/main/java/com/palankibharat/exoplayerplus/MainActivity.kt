@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import com.palankibharat.exo_compose_player.ExoComposePlayer
 import com.palankibharat.exo_compose_player.PipInitializer
@@ -39,7 +40,6 @@ class MainActivity : ComponentActivity() {
 
                     /*
                     to update  player state we can use
-
                     exoPlayerState.updateState(newPlayerStates = PlayerStates())
                     */
 

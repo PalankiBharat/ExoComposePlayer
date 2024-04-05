@@ -1,7 +1,6 @@
 package com.palankibharat.exo_compose_player
 
 import android.app.Activity
-import android.net.Uri
 import android.util.Log
 import android.view.ViewGroup
 import android.widget.FrameLayout
@@ -12,34 +11,26 @@ import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.Stable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableFloatStateOf
-import androidx.compose.runtime.mutableLongStateOf
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.saveable.rememberSaveable
-import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.core.net.toUri
-import androidx.media3.common.C
 import androidx.media3.common.MediaItem
-import androidx.media3.common.MimeTypes
 import androidx.media3.common.Player
 import androidx.media3.common.util.UnstableApi
-import androidx.media3.datasource.RawResourceDataSource
-import androidx.media3.datasource.RawResourceDataSource.buildRawResourceUri
 import androidx.media3.exoplayer.ExoPlayer
 import androidx.media3.ui.AspectRatioFrameLayout.RESIZE_MODE_FILL
 import androidx.media3.ui.PlayerView
@@ -70,10 +61,14 @@ fun ExoComposePlayer(
     mediaUrl: String = "",
     listOfSubtitle: List<Subtitle> = emptyList(),
     playerControllerStyle: PlayerControlsStyle = PlayerDefaults.defaultPlayerControls,
+    exoPlayerState: ExoPlayerState,
     playerControlsConfiguration: PlayerControlsConfiguration = PlayerDefaults.defaultPlayerControlsConfiguration,
-    //exoplayerBuilder: ExoPlayer.Builder? = null,
-    //getExoplayer: (ExoPlayer) -> Unit = {},
-    playerModes: PlayerModes = PlayerModes.FULL_PLAYER,
+    loader: @Composable (BoxScope.() -> Unit) = {
+        DefaultLoader(
+            modifier = Modifier.align(Alignment.Center), color = Color.White
+        )
+    }
+
 ) {
     InternalExoPlayer(
         modifier = modifier,
@@ -81,7 +76,9 @@ fun ExoComposePlayer(
         playerControllerStyle = playerControllerStyle,
         playerControlsConfiguration = playerControlsConfiguration,
         listOfSubtitle = listOfSubtitle,
-        )
+        loader = loader,
+        exoPlayerState = exoPlayerState
+    )
 }
 
 @OptIn(UnstableApi::class)
@@ -91,18 +88,15 @@ private fun InternalExoPlayer(
     mediaUrl: String = "",
     playerControllerStyle: PlayerControlsStyle = PlayerDefaults.defaultPlayerControls,
     playerControlsConfiguration: PlayerControlsConfiguration = PlayerDefaults.defaultPlayerControlsConfiguration,
-    //exoplayerBuilder: Media= null,
     listOfSubtitle: List<Subtitle> = emptyList(),
-    //getExoplayer: (ExoPlayer) -> Unit = {},
+    loader: @Composable (BoxScope.() -> Unit),
+    exoPlayerState: ExoPlayerState
 ) {
-
-    val context = LocalContext.current
-    val activity = context as Activity
-
 
     val playerStates by exoPlayerState
 
-    Log.e("Player",playerStates.toString())
+    val context = LocalContext.current
+    val activity = context as Activity
 
 
     LaunchedEffect(key1 = playerStates.areControlsVisible) {
@@ -139,19 +133,19 @@ private fun InternalExoPlayer(
                 override fun onPlaybackStateChanged(playbackState: Int) {
                     when (playbackState) {
                         Player.STATE_READY -> {
-                            playerStates = playerStates.copy(loading = false)
+                            exoPlayerState.updateState(playerStates.copy(loading = false))
                         }
 
                         Player.STATE_BUFFERING -> {
-                            playerStates = playerStates.copy(loading = true)
+                            exoPlayerState.updateState(playerStates.copy(loading = true))
                         }
 
                         Player.STATE_IDLE -> {
-                            playerStates = playerStates.copy(loading = true)
+                            exoPlayerState.updateState(playerStates.copy(loading = true))
                         }
 
                         Player.STATE_ENDED -> {
-                            playerStates = playerStates.copy(loading = false)
+                            exoPlayerState.updateState(playerStates.copy(loading = false))
                         }
 
                     }
@@ -236,18 +230,16 @@ private fun InternalExoPlayer(
                     playerMode = playerStates.playerMode,
                     playerControlsConfiguration = playerControlsConfiguration,
                     playerControlsStyle = playerControllerStyle,
-                    isPlaying = playerStates.isPlayingValue,
                     onPlayerModeChangeClick = {
-
                         exoPlayerState.updateState(
                             playerStates.copy(
-                                playerMode =
-                                if (playerStates.playerMode == PlayerModes.FULL_PLAYER) {
+                                playerMode = if (playerStates.playerMode == PlayerModes.FULL_PLAYER) {
                                     PlayerModes.MINI_PLAYER
                                 } else PlayerModes.FULL_PLAYER
                             )
                         )
-                    }
+                    },
+                    playerStates = playerStates
                 )
             }
             AnimatedVisibility(

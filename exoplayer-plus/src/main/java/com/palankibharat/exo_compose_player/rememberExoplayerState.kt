@@ -71,6 +71,7 @@ class ExoPlayerState(
                     state.value.totalDuration,
                     state.value.brightnessLevel,
                     state.value.isPlayingValue,
+                    state.value.loading
                 )
             },
             restore = { restored ->
@@ -86,6 +87,7 @@ class ExoPlayerState(
                             totalDuration = restored[2] as Long,
                             brightnessLevel = restored[3] as Float,
                             isPlayingValue = restored[4] as Boolean,
+                            loading = restored[5] as Boolean,
                         )
                     )
                 }
@@ -109,8 +111,8 @@ data class PlayerStates(
     val totalDuration: Long = 0L,
     val brightnessLevel: Float = 0f,
     val isPlayingValue: Boolean = false,
+    val loading: Boolean = false
 )
-
 /**
  * Enum class defining player modes such as FULL_PLAYER and MINI_PLAYER.
  */
