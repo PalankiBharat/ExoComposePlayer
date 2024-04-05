@@ -1,6 +1,7 @@
 package com.palankibharat.exo_compose_player
 
 import android.app.Activity
+import android.net.Uri
 import android.util.Log
 import android.view.ViewGroup
 import android.widget.FrameLayout
@@ -11,28 +12,34 @@ import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.BoxScope
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.Stable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableFloatStateOf
+import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.core.net.toUri
+import androidx.media3.common.C
 import androidx.media3.common.MediaItem
+import androidx.media3.common.MimeTypes
 import androidx.media3.common.Player
 import androidx.media3.common.util.UnstableApi
+import androidx.media3.datasource.RawResourceDataSource
+import androidx.media3.datasource.RawResourceDataSource.buildRawResourceUri
 import androidx.media3.exoplayer.ExoPlayer
 import androidx.media3.ui.AspectRatioFrameLayout.RESIZE_MODE_FILL
 import androidx.media3.ui.PlayerView
@@ -64,12 +71,9 @@ fun ExoComposePlayer(
     listOfSubtitle: List<Subtitle> = emptyList(),
     playerControllerStyle: PlayerControlsStyle = PlayerDefaults.defaultPlayerControls,
     playerControlsConfiguration: PlayerControlsConfiguration = PlayerDefaults.defaultPlayerControlsConfiguration,
-    loader: @Composable (BoxScope.() -> Unit) = {
-        DefaultLoader(
-            modifier = Modifier.align(Alignment.Center),
-            color = Color.White
-        )
-    }
+    //exoplayerBuilder: ExoPlayer.Builder? = null,
+    //getExoplayer: (ExoPlayer) -> Unit = {},
+    playerModes: PlayerModes = PlayerModes.FULL_PLAYER,
 ) {
     InternalExoPlayer(
         modifier = modifier,
@@ -77,8 +81,7 @@ fun ExoComposePlayer(
         playerControllerStyle = playerControllerStyle,
         playerControlsConfiguration = playerControlsConfiguration,
         listOfSubtitle = listOfSubtitle,
-        loader = loader
-    )
+        )
 }
 
 @OptIn(UnstableApi::class)
@@ -88,25 +91,25 @@ private fun InternalExoPlayer(
     mediaUrl: String = "",
     playerControllerStyle: PlayerControlsStyle = PlayerDefaults.defaultPlayerControls,
     playerControlsConfiguration: PlayerControlsConfiguration = PlayerDefaults.defaultPlayerControlsConfiguration,
+    //exoplayerBuilder: Media= null,
     listOfSubtitle: List<Subtitle> = emptyList(),
-    loader: @Composable (BoxScope.() -> Unit)
+    //getExoplayer: (ExoPlayer) -> Unit = {},
 ) {
 
     val context = LocalContext.current
     val activity = context as Activity
-    var playerStates by remember {
-        mutableStateOf(
-            PlayerStates(
-                brightnessLevel = context.getCurrentBrightness()
-            )
-        )
-    }
+
+
+    val playerStates by exoPlayerState
+
+    Log.e("Player",playerStates.toString())
+
 
     LaunchedEffect(key1 = playerStates.areControlsVisible) {
         Log.d(TAG, "InternalExoPlayer: ${playerStates.areControlsVisible}")
         if (playerStates.areControlsVisible) {
             delay(5000)
-            playerStates = playerStates.copy(areControlsVisible = false)
+            exoPlayerState.updateState(playerStates.copy(areControlsVisible = false))
         }
     }
     LaunchedEffect(key1 = playerStates, block = {
@@ -130,7 +133,7 @@ private fun InternalExoPlayer(
             prepare()
             addListener(object : Player.Listener {
                 override fun onEvents(player: Player, events: Player.Events) {
-                    playerStates = playerStates.copy(totalDuration = player.duration)
+                    exoPlayerState.updateState(playerStates.copy(totalDuration = player.duration))
                 }
 
                 override fun onPlaybackStateChanged(playbackState: Int) {
@@ -174,8 +177,7 @@ private fun InternalExoPlayer(
                 .pointerInput(Unit) {
                     val width = this.size.width
                     detectTapGestures(onTap = {
-                        playerStates =
-                            playerStates.copy(areControlsVisible = !playerStates.areControlsVisible)
+                        exoPlayerState.updateState(playerStates.copy(areControlsVisible = !playerStates.areControlsVisible))
                         // playerStates.areControlsVisible = !playerStates.areControlsVisible
                     }, onDoubleTap = {
                         if (playerControlsConfiguration.isDoubleTapToForwardBackwardEnabled) {
@@ -211,8 +213,7 @@ private fun InternalExoPlayer(
                     modifier = Modifier.fillMaxSize(),
                     onReplayClick = { exoPlayer.seekBackward(playerControlsConfiguration.replayClickIntervalTime) },
                     onPlayPauseToggle = {
-                        playerStates =
-                            playerStates.copy(isPlayingValue = !playerStates.isPlayingValue)
+                        exoPlayerState.updateState(playerStates.copy(isPlayingValue = !playerStates.isPlayingValue))
                         if (playerStates.isPlayingValue) {
                             exoPlayer.pause()
                         } else {
@@ -223,7 +224,7 @@ private fun InternalExoPlayer(
                         exoPlayer.seekForward(playerControlsConfiguration.forwardClickIntervalTime)
                     },
                     onBrightnessChange = {
-                        playerStates = playerStates.copy(brightnessLevel = it)
+                        exoPlayerState.updateState(playerStates.copy(brightnessLevel = it))
                     },
                     brightnessLevel = playerStates.brightnessLevel,
                     volumeLevel = 50f,
@@ -235,16 +236,18 @@ private fun InternalExoPlayer(
                     playerMode = playerStates.playerMode,
                     playerControlsConfiguration = playerControlsConfiguration,
                     playerControlsStyle = playerControllerStyle,
+                    isPlaying = playerStates.isPlayingValue,
                     onPlayerModeChangeClick = {
-                        playerStates =
+
+                        exoPlayerState.updateState(
                             playerStates.copy(
                                 playerMode =
                                 if (playerStates.playerMode == PlayerModes.FULL_PLAYER) {
                                     PlayerModes.MINI_PLAYER
                                 } else PlayerModes.FULL_PLAYER
                             )
-                    },
-                    playerStates = playerStates
+                        )
+                    }
                 )
             }
             AnimatedVisibility(
@@ -259,18 +262,6 @@ private fun InternalExoPlayer(
     }
 }
 
-data class PlayerStates(
-    val areControlsVisible: Boolean = false,
-    val playerMode: PlayerModes = PlayerModes.MINI_PLAYER,
-    val totalDuration: Long = 0L,
-    val brightnessLevel: Float = 0f,
-    val isPlayingValue: Boolean = false,
-    val loading: Boolean = false
-)
-
-enum class PlayerModes {
-    FULL_PLAYER, MINI_PLAYER
-}
 
 enum class PlayerState {
     STATE_READY
